@@ -167,9 +167,9 @@ async function addCamera(event) {
         resetCameraForm();
         loadCameras();
         
-        alert(editingId ? '相机修改成功！' : '相机添加成功！');
+        Message.success(editingId ? '相机修改成功！' : '相机添加成功！');
     } catch (error) {
-        alert((editingId ? '修改相机失败: ' : '添加相机失败: ') + error.message);
+        Message.error((editingId ? '修改相机失败: ' : '添加相机失败: ') + error.message);
     }
 }
 
@@ -213,7 +213,7 @@ async function editCamera(cameraId) {
         
         showModal('add-camera-modal');
     } catch (error) {
-        alert('获取相机信息失败: ' + error.message);
+        Message.error('获取相机信息失败: ' + error.message);
     }
 }
 
@@ -286,7 +286,8 @@ async function updateAgentSelector() {
 // 删除相机
 async function deleteCamera(cameraId) {
     // 确认删除
-    if (!confirm('确定要删除这个相机吗？此操作不可恢复。')) {
+    const confirmed = await Message.confirm('确定要删除这个相机吗？此操作不可恢复。');
+    if (!confirmed) {
         return;
     }
 
@@ -301,9 +302,14 @@ async function deleteCamera(cameraId) {
         }
 
         const result = await response.json();
-        alert('相机删除成功！');
+        Message.success('相机删除成功！');
         loadCameras(); // 重新加载相机列表
     } catch (error) {
-        alert('删除相机失败: ' + error.message);
+        Message.error('删除相机失败: ' + error.message);
     }
 }
+
+// 将函数暴露到全局作用域
+window.deleteCamera = deleteCamera;
+window.editCamera = editCamera;
+window.showCreateRentalModal = showCreateRentalModal;

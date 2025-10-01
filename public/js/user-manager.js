@@ -130,9 +130,9 @@ async function addUser(event) {
         event.target.reset();
         loadUsers();
         
-        alert('用户添加成功！');
+        Message.success('用户添加成功！');
     } catch (error) {
-        alert('添加用户失败: ' + error.message);
+        Message.error('添加用户失败: ' + error.message);
     }
 }
 
@@ -154,7 +154,7 @@ async function editUserModal(userId) {
         
         showModal('edit-user-modal');
     } catch (error) {
-        alert('获取用户信息失败: ' + error.message);
+        Message.error('获取用户信息失败: ' + error.message);
     }
 }
 
@@ -164,7 +164,7 @@ async function editUser(event) {
     
     const userId = event.target.dataset.editingId;
     if (!userId) {
-        alert('用户ID不存在');
+        Message.error('用户ID不存在');
         return;
     }
     
@@ -200,15 +200,16 @@ async function editUser(event) {
         event.target.reset();
         loadUsers();
         
-        alert('用户修改成功！');
+        Message.success('用户修改成功！');
     } catch (error) {
-        alert('修改用户失败: ' + error.message);
+        Message.error('修改用户失败: ' + error.message);
     }
 }
 
 // 删除用户
 async function deleteUser(userId) {
-    if (!confirm('确定要删除这个用户吗？此操作不可恢复。')) {
+    const confirmed = await Message.confirm('确定要删除这个用户吗？此操作不可恢复。');
+    if (!confirmed) {
         return;
     }
     
@@ -223,13 +224,13 @@ async function deleteUser(userId) {
         }
         
         const result = await response.json();
-        alert(result.message || '用户删除成功！');
+        Message.success(result.message || '用户删除成功！');
         
         // 刷新用户列表
         loadUsers();
         
     } catch (error) {
-        alert('删除用户失败: ' + error.message);
+        Message.error('删除用户失败: ' + error.message);
     }
 }
 

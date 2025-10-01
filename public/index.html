@@ -4,6 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>相机租赁管理平台</title>
+    <!-- Bootstrap CSS -->
+    <link href="lib/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="lib/bootstrap-icons.css" rel="stylesheet">
+    <!-- Bootstrap Datepicker CSS -->
+    <link href="lib/bootstrap-datepicker.min.css" rel="stylesheet">
+    <style>
+        /* 日期选择器样式优化 */
+        .datepicker {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid #dee2e6;
+        }
+        
+        .datepicker table {
+            border-collapse: separate;
+            border-spacing: 2px;
+        }
+        
+        .datepicker .datepicker-days tbody tr td {
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .datepicker .datepicker-days tbody tr td:hover {
+            background-color: #e9ecef;
+            transform: scale(1.05);
+        }
+        
+        .datepicker .datepicker-days tbody tr td.active {
+            background-color: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+        }
+        
+        .datepicker .datepicker-days tbody tr td.active:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        
+        .datepicker .datepicker-days tbody tr td.today {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529;
+        }
+        
+        .datepicker .datepicker-days tbody tr td.today:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
+        }
+        
+        .datepicker .datepicker-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .datepicker .datepicker-switch,
+        .datepicker .prev,
+        .datepicker .next {
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .datepicker .datepicker-switch:hover,
+        .datepicker .prev:hover,
+        .datepicker .next:hover {
+            background-color: #e9ecef;
+            color: #007bff;
+        }
+        
+        .datepicker .datepicker-months tbody tr td span,
+        .datepicker .datepicker-years tbody tr td span {
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .datepicker .datepicker-months tbody tr td span:hover,
+        .datepicker .datepicker-years tbody tr td span:hover {
+            background-color: #e9ecef;
+            transform: scale(1.05);
+        }
+        
+        .datepicker .datepicker-months tbody tr td span.active,
+        .datepicker .datepicker-years tbody tr td span.active {
+            background-color: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+        }
+        
+        /* 输入框样式优化 */
+        input[type="date"],
+        .datepicker-input {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="date"]:focus,
+        .datepicker-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        
+        /* 日期选择器下拉箭头样式 */
+        .datepicker-dropdown:before {
+            border-bottom-color: #dee2e6;
+        }
+        
+        .datepicker-dropdown:after {
+            border-bottom-color: #fff;
+        }
+    </style>
     <style>
         /* 预加载样式，防止页面闪烁 */
         body {
@@ -515,11 +631,49 @@
         </div>
     </div>
 
+    <!-- Toast 容器 -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/bootstrap.bundle.min.js"></script>
+    <script src="lib/bootstrap-datepicker.min.js"></script>
+    <script src="lib/bootstrap-datepicker.zh-CN.min.js"></script>
     <script src="js/config.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/camera-manager.js"></script>
     <script src="js/rental-manager.js"></script>
+    <script src="js/camera-manager.js"></script>
     <script src="js/calendar-manager.js"></script>
     <script src="js/user-manager.js"></script>
+    <script>
+        // 初始化日期选择器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 相机管理页面的日期选择器
+            $('#rental-date, #return-date').datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                autoclose: true,
+                todayHighlight: true
+            });
+            
+            // 租赁记录页面的日期选择器
+            $('#rentals-start-date, #rentals-end-date').datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                autoclose: true,
+                todayHighlight: true
+            });
+            
+            // 创建租赁模态框的日期选择器
+            $('input[name="rental_date"], input[name="return_date"]').datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                autoclose: true,
+                todayHighlight: true,
+                startDate: new Date()
+            });
+        });
+    </script>
 </body>
 </html>

@@ -126,7 +126,8 @@ function toggleRentalsFilters() {
 
 // 删除租赁记录
 async function deleteRental(rentalId) {
-    if (!confirm('确定要删除这条租赁记录吗？此操作不可恢复。')) {
+    const confirmed = await Message.confirm('确定要删除这条租赁记录吗？此操作不可恢复。');
+    if (!confirmed) {
         return;
     }
     
@@ -141,7 +142,7 @@ async function deleteRental(rentalId) {
         }
         
         const result = await response.json();
-        alert(result.message || '租赁记录删除成功！');
+        Message.success(result.message || '租赁记录删除成功！');
         
         // 刷新租赁记录列表
         loadRentals();
@@ -151,7 +152,7 @@ async function deleteRental(rentalId) {
         loadCameras();
         
     } catch (error) {
-        alert('删除租赁记录失败: ' + error.message);
+        Message.error('删除租赁记录失败: ' + error.message);
     }
 }
 
@@ -164,7 +165,7 @@ async function showCreateRentalModal(cameraId) {
             if (!response.ok) throw new Error('加载相机列表失败');
             currentCameras = await response.json();
         } catch (error) {
-            alert('相机信息加载失败: ' + error.message);
+            Message.error('相机信息加载失败: ' + error.message);
             return;
         }
     }
@@ -172,7 +173,7 @@ async function showCreateRentalModal(cameraId) {
     selectedCameraForRental = currentCameras.find(c => c.id == cameraId);
     
     if (!selectedCameraForRental) {
-        alert('相机信息加载失败');
+        Message.error('相机信息加载失败');
         return;
     }
 
@@ -205,7 +206,7 @@ async function showCreateRentalModal(cameraId) {
 
         showModal('create-rental-modal');
     } catch (error) {
-        alert('加载客户列表失败: ' + error.message);
+        Message.error('加载客户列表失败: ' + error.message);
     }
 }
 
@@ -278,7 +279,7 @@ async function createRental(event) {
         
         // 验证必填字段
         if (!newCustomerData.name || !newCustomerData.phone) {
-            alert('请填写客户姓名和手机号码');
+            Message.warning('请填写客户姓名和手机号码');
             return;
         }
         
@@ -296,14 +297,14 @@ async function createRental(event) {
             const newCustomer = await customerResponse.json();
             customerId = newCustomer.id;
         } catch (error) {
-            alert('创建客户失败: ' + error.message);
+            Message.error('创建客户失败: ' + error.message);
             return;
         }
     }
     
     // 验证客户选择
     if (!customerId) {
-        alert('请选择客户或新增客户');
+        Message.warning('请选择客户或新增客户');
         return;
     }
     
@@ -337,9 +338,9 @@ async function createRental(event) {
         loadCalendar();
         loadRentals();
         
-        alert('租赁创建成功！');
+        Message.success('租赁创建成功！');
     } catch (error) {
-        alert('创建租赁失败: ' + error.message);
+        Message.error('创建租赁失败: ' + error.message);
     }
 }
 
@@ -368,3 +369,7 @@ function toggleNewCustomerForm() {
         addCustomerBtn.style.background = '';
     }
 }
+
+// 将函数暴露到全局作用域
+window.showCreateRentalModal = showCreateRentalModal;
+window.deleteRental = deleteRental;

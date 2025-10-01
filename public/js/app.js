@@ -111,13 +111,17 @@ function showApp() {
     
     // 加载数据
     showLoading('正在加载数据...');
-    Promise.all([
-        loadCameras(),
-        loadCalendar(),
-        loadRentals()
-    ]).finally(() => {
-        hideLoading();
-    });
+    
+    // 使用setTimeout确保所有JavaScript文件已经加载完成
+    setTimeout(() => {
+        Promise.all([
+            typeof loadCameras === 'function' ? loadCameras() : Promise.resolve(),
+            typeof loadCalendar === 'function' ? loadCalendar() : Promise.resolve(),
+            typeof loadRentals === 'function' ? loadRentals() : Promise.resolve()
+        ]).finally(() => {
+            hideLoading();
+        });
+    }, 100);
 }
 
 // 根据用户角色调整界面
@@ -277,7 +281,7 @@ async function login(event) {
         showApp();
         
     } catch (error) {
-        alert('登录失败: ' + error.message);
+        Message.error('登录失败: ' + error.message);
     }
 }
 
@@ -316,21 +320,37 @@ function switchTab(tabName) {
     // 根据标签页加载数据
     switch(tabName) {
         case 'cameras':
-            loadCameras();
+            if (typeof loadCameras === 'function') {
+                loadCameras();
+            } else {
+                console.warn('loadCameras函数未定义');
+            }
             break;
         case 'calendar':
-            loadCalendar();
+            if (typeof loadCalendar === 'function') {
+                loadCalendar();
+            } else {
+                console.warn('loadCalendar函数未定义');
+            }
             break;
         case 'rentals':
-            loadRentals();
+            if (typeof loadRentals === 'function') {
+                loadRentals();
+            } else {
+                console.warn('loadRentals函数未定义');
+            }
             break;
         case 'users':
             if (currentUser.role === 'admin') {
-                loadUsers();
+                if (typeof loadUsers === 'function') {
+                    loadUsers();
+                } else {
+                    console.warn('loadUsers函数未定义');
+                }
             } else {
                 // 代理人不能访问用户管理，自动切换到相机管理
                 switchTab('cameras');
-                alert('您没有权限访问用户管理界面');
+                Message.warning('您没有权限访问用户管理界面');
             }
             break;
     }
@@ -542,13 +562,13 @@ async function changePassword(event) {
     
     // 验证密码强度
     if (!validatePasswordStrength(newPassword)) {
-        alert('密码强度不足，请确保密码包含大小写字母、数字和特殊字符，且长度至少8位');
+        Message.warning('密码强度不足，请确保密码包含大小写字母、数字和特殊字符，且长度至少8位');
         return;
     }
     
     // 验证确认密码
     if (newPassword !== confirmPassword) {
-        alert('新密码和确认密码不一致');
+        Message.warning('新密码和确认密码不一致');
         return;
     }
     
@@ -577,10 +597,10 @@ async function changePassword(event) {
         document.getElementById('strength-fill').className = 'strength-fill';
         document.getElementById('strength-text').textContent = '密码强度: 弱';
         
-        alert('密码修改成功！');
+        Message.success('密码修改成功！');
         
     } catch (error) {
-        alert('修改密码失败: ' + error.message);
+        Message.error('修改密码失败: ' + error.message);
     }
 }
 
@@ -594,3 +614,8 @@ function validatePasswordStrength(password) {
     
     return hasLength && hasUppercase && hasLowercase && hasNumber && hasSpecial;
 }
+
+// 将函数暴露到全局作用域
+window.authFetch = authFetch;
+window.showModal = showModal;
+window.closeModal = closeModal;

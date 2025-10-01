@@ -201,7 +201,7 @@ async function searchCalendarCameras() {
         loadCalendar();
     } catch (error) {
         console.error('搜索相机失败:', error);
-        alert('搜索失败: ' + error.message);
+        Message.error('搜索失败: ' + error.message);
     }
 }
 
