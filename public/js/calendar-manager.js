@@ -13,6 +13,10 @@ async function loadCalendar() {
         if (!response.ok) throw new Error('加载日历数据失败');
 
         const rentals = await response.json();
+        
+        // 保存租赁数据到全局变量，供后续使用
+        window.currentRentals = rentals;
+        
         renderCalendar(rentals);
         
         // 更新相机选择器
@@ -124,35 +128,198 @@ function renderCalendar(rentals) {
         }
 
         calendarHTML += `
-            <div class="${dayClass}" data-day="${day}">
+            <div class="${dayClass}" data-day="${day}" data-date="${dateStr}">
                 <div class="day-number">${day}</div>
-                ${dayRentals.map(rental => {
-                    // 构建显示文本，过滤掉undefined和空值
-                    const agentCameraParts = [];
-                    if (rental.agent) agentCameraParts.push(`${rental.agent}-`);
-                    if (rental.camera_code) agentCameraParts.push(rental.camera_code);
-                    
-                    const customerParts = [];
-                    if (rental.customer_name) customerParts.push(`${rental.customer_name}-`);
-                    if (rental.customer_phone) customerParts.push(rental.customer_phone);
-                    
-                    const agentCameraText = agentCameraParts.join(' ');
-                    const customerText = customerParts.join(' ');
-                    const titleText = `${agentCameraParts.join(' ')} - ${customerParts.join(' ')} (${getRentalStatusText(rental.status)})`;
-                    
-                    return `
-                        <div class="rental-event" title="${titleText}">
-                            ${agentCameraText ? `<div class="rental-line">${agentCameraText}</div>` : ''}
-                            ${customerText ? `<div class="rental-line">${customerText}</div>` : ''}
-                        </div>
-                    `;
-                }).join('')}
+                <div class="rental-content">
+                    ${renderDayRentals(dayRentals, dateStr)}
+                </div>
             </div>
         `;
     }
 
     calendarHTML += '</div>';
     calendarElement.innerHTML = calendarHTML;
+    
+    // 添加点击事件监听器
+    addCalendarEventListeners();
+}
+
+// 渲染每日租赁记录
+function renderDayRentals(dayRentals, dateStr) {
+    if (dayRentals.length === 0) {
+        return '';
+    }
+    
+    // 如果有租赁记录，只显示"+数字"格式
+    const rentalCount = dayRentals.length;
+    
+    return `
+        <div class="rental-more" data-date="${dateStr}">
+            +${rentalCount}
+        </div>
+    `;
+}
+
+// 添加日历事件监听器
+function addCalendarEventListeners() {
+    // 点击"+数字"显示具体记录
+    document.querySelectorAll('.rental-more').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dateStr = this.getAttribute('data-date');
+            showRentalsForDate(dateStr);
+        });
+    });
+    
+    // 点击租赁记录显示详情
+    document.querySelectorAll('.rental-event').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const rentalId = this.getAttribute('data-rental-id');
+            if (rentalId) {
+                showRentalDetail(rentalId);
+            }
+        });
+    });
+}
+
+// 显示指定日期的所有租赁记录
+function showRentalsForDate(dateStr) {
+    const date = new Date(dateStr);
+    const formattedDate = formatDate(dateStr);
+    
+    // 获取该日期的所有租赁记录
+    const dayRentals = getAllRentalsForDate(dateStr);
+    
+    if (dayRentals.length === 0) {
+        Message.info(`${formattedDate} 没有租赁记录`);
+        return;
+    }
+    
+    // 创建模态框内容
+    const modalContent = `
+        <div class="date-rentals-modal">
+            <h3>${formattedDate} 租赁记录</h3>
+            <div class="rentals-list">
+                ${dayRentals.map(rental => {
+                    const agentCameraText = rental.agent ? `${rental.agent}-${rental.camera_code}` : rental.camera_code;
+                    const customerText = rental.customer_name ? `${rental.customer_name}-${rental.customer_phone || ''}` : '';
+                    const statusText = getRentalStatusText(rental.status);
+                    
+                    return `
+                        <div class="rental-item" data-rental-id="${rental.id}">
+                            <div class="rental-info">
+                                <div class="rental-line">${agentCameraText}</div>
+                                <div class="rental-line">${customerText}</div>
+                                <div class="rental-status">${statusText}</div>
+                            </div>
+                            <button class="btn-view-detail" onclick="showRentalDetail(${rental.id})">查看详情</button>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('date-rentals-modal')">关闭</button>
+            </div>
+        </div>
+    `;
+    
+    // 创建并显示模态框
+    showCustomModal('date-rentals-modal', modalContent);
+}
+
+// 获取指定日期的所有租赁记录
+function getAllRentalsForDate(dateStr) {
+    // 这里需要从服务器获取该日期的所有租赁记录
+    // 由于当前实现中rentals数据已经加载，我们可以从全局变量中获取
+    // 在实际应用中，可能需要调用API获取更准确的数据
+    return window.currentRentals ? window.currentRentals.filter(rental => {
+        const rentalStart = new Date(rental.rental_date);
+        const rentalEnd = new Date(rental.return_date);
+        const currentDate = new Date(dateStr);
+        
+        const currentDateStr = currentDate.toISOString().split('T')[0];
+        const rentalStartStr = rentalStart.toISOString().split('T')[0];
+        const rentalEndStr = rentalEnd.toISOString().split('T')[0];
+        
+        return currentDateStr >= rentalStartStr && currentDateStr <= rentalEndStr;
+    }) : [];
+}
+
+// 显示租赁详情
+function showRentalDetail(rentalId) {
+    // 这里可以调用现有的租赁详情显示功能
+    // 由于当前代码中没有直接的租赁详情显示功能，我们可以显示一个简单的详情模态框
+    // 在实际应用中，可以调用现有的租赁详情API
+    
+    // 获取租赁记录
+    const rental = window.currentRentals ? window.currentRentals.find(r => r.id == rentalId) : null;
+    
+    if (!rental) {
+        Message.error('未找到租赁记录');
+        return;
+    }
+    
+    const modalContent = `
+        <div class="rental-detail-modal">
+            <h3>租赁详情</h3>
+            <div class="rental-detail-content">
+                <div class="detail-row">
+                    <label>相机信息:</label>
+                    <span>${rental.camera_code} - ${rental.brand} ${rental.model}</span>
+                </div>
+                <div class="detail-row">
+                    <label>代理人:</label>
+                    <span>${rental.agent || '无'}</span>
+                </div>
+                <div class="detail-row">
+                    <label>租赁人:</label>
+                    <span>${rental.customer_name}</span>
+                </div>
+                <div class="detail-row">
+                    <label>联系方式:</label>
+                    <span>${rental.customer_phone || '无'}</span>
+                </div>
+                <div class="detail-row">
+                    <label>租赁日期:</label>
+                    <span>${formatDate(rental.rental_date)}</span>
+                </div>
+                <div class="detail-row">
+                    <label>归还日期:</label>
+                    <span>${formatDate(rental.return_date)}</span>
+                </div>
+                <div class="detail-row">
+                    <label>状态:</label>
+                    <span class="status-badge status-${rental.status}">${getRentalStatusText(rental.status)}</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('rental-detail-modal')">关闭</button>
+            </div>
+        </div>
+    `;
+    
+    showCustomModal('rental-detail-modal', modalContent);
+}
+
+// 显示自定义模态框
+function showCustomModal(modalId, content) {
+    // 检查是否已存在模态框
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content">
+            ${content}
+        </div>
+    `;
+    
+    showModal(modalId);
 }
 
 // 日历导航
@@ -269,5 +436,41 @@ function toggleCalendarFilters() {
     } else {
         filters.style.display = 'none';
         toggleBtn.textContent = '展开';
+    }
+}
+
+// 格式化日期
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}年${(date.getMonth() + 1).toString().padStart(2, '0')}月${date.getDate().toString().padStart(2, '0')}日`;
+}
+
+// 获取租赁状态文本
+function getRentalStatusText(status) {
+    const statusMap = {
+        'active': '租赁中',
+        'completed': '已结束',
+        'cancelled': '已取消',
+        'upcoming': '即将开始'
+    };
+    return statusMap[status] || status;
+}
+
+// 计算租赁状态
+function calculateRentalStatus(rental) {
+    const today = new Date();
+    const rentalStart = new Date(rental.rental_date);
+    const rentalEnd = new Date(rental.return_date);
+    
+    if (rental.status === 'cancelled') {
+        return 'cancelled';
+    }
+    
+    if (today < rentalStart) {
+        return 'upcoming';
+    } else if (today > rentalEnd) {
+        return 'completed';
+    } else {
+        return 'active';
     }
 }

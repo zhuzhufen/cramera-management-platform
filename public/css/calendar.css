@@ -149,21 +149,33 @@
 .calendar-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr; /* 确保所有行高度一致 */
 }
 
 .calendar-day {
-    padding: 12px 8px;
+    padding: 4px 2px;
     text-align: center;
-    border-right: 1px solid #e9ecef;
-    border-bottom: 1px solid #e9ecef;
-    min-height: 60px;
+    border: 1px solid #e9ecef;
+    border-top: none;
+    border-left: none;
+    min-height: 50px; /* 调整为长方形高度 */
     position: relative;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 确保内容在格子中均匀分布 */
+    align-items: center;
 }
 
 .calendar-day:nth-child(7n) {
-    border-right: none;
+    border-right: 1px solid #e9ecef; /* 确保最后一列也有右边框 */
+}
+
+/* 修复边框重叠变粗的问题 - 使用负边距 */
+.calendar-days {
+    margin-right: -1px;
+    margin-bottom: -1px;
 }
 
 .calendar-day.empty {
@@ -173,6 +185,23 @@
 
 .calendar-day:hover:not(.empty) {
     background: #f8f9fa;
+}
+
+.day-number {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+.rental-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    justify-content: center; /* 确保内容在格子中间 */
+    overflow: hidden;
 }
 
 .day-number {
@@ -191,13 +220,378 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.rental-event:hover {
+    background: #5a6fd8;
+}
+
+.rental-more {
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 2px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin: 1px 0;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.rental-more:hover {
+    background: #ff5252;
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.rental-line {
+    line-height: 1.2;
+    margin: 1px 0;
+}
+
+/* 日期租赁记录模态框样式 */
+.date-rentals-modal .rentals-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 1rem 0;
+}
+
+.date-rentals-modal .rental-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.25rem;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.date-rentals-modal .rental-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    opacity: 0.8;
+}
+
+.date-rentals-modal .rental-item:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.date-rentals-modal .rental-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.date-rentals-modal .rental-main-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.date-rentals-modal .camera-info {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-rentals-modal .camera-info::before {
+    content: '📷';
+    font-size: 1.1rem;
+}
+
+.date-rentals-modal .agent-info {
+    font-size: 0.85rem;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.date-rentals-modal .customer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.date-rentals-modal .customer-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-rentals-modal .customer-name::before {
+    content: '👤';
+    font-size: 0.9rem;
+}
+
+.date-rentals-modal .customer-phone {
+    font-size: 0.8rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-rentals-modal .customer-phone::before {
+    content: '📞';
+    font-size: 0.8rem;
+}
+
+.date-rentals-modal .rental-dates {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.date-rentals-modal .date-range {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(102, 126, 234, 0.05);
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.date-rentals-modal .date-range::before {
+    content: '📅';
+    font-size: 0.8rem;
+}
+
+.date-rentals-modal .rental-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.date-rentals-modal .status-active {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.date-rentals-modal .status-completed {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.date-rentals-modal .status-cancelled {
+    background: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.date-rentals-modal .status-upcoming {
+    background: rgba(23, 162, 184, 0.1);
+    color: #0c5460;
+    border: 1px solid rgba(23, 162, 184, 0.3);
+}
+
+.date-rentals-modal .btn-view-detail {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+    min-width: 100px;
+    text-align: center;
+}
+
+.date-rentals-modal .btn-view-detail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.date-rentals-modal .btn-view-detail:hover {
+    background: linear-gradient(135deg, #5a6fd8, #6a42a0);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transform: translateY(-2px);
+}
+
+.date-rentals-modal .btn-view-detail:hover::before {
+    left: 100%;
+}
+
+.date-rentals-modal .btn-view-detail:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+/* 租赁详情模态框样式 */
+.rental-detail-modal .rental-detail-content {
+    margin: 1rem 0;
+}
+
+.rental-detail-modal .detail-row {
+    display: flex;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.rental-detail-modal .detail-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.rental-detail-modal .detail-row label {
+    font-weight: 600;
+    min-width: 100px;
+    color: #495057;
+}
+
+.rental-detail-modal .detail-row span {
+    flex: 1;
+    color: #6c757d;
+}
+
+.rental-detail-modal .status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.rental-detail-modal .status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.rental-detail-modal .status-completed {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.rental-detail-modal .status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* 优化关闭按钮样式 */
+.date-rentals-modal .modal-actions .btn-secondary,
+.rental-detail-modal .modal-actions .btn-secondary {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.date-rentals-modal .modal-actions .btn-secondary::before,
+.rental-detail-modal .modal-actions .btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.date-rentals-modal .modal-actions .btn-secondary:hover,
+.rental-detail-modal .modal-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #e74c3c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.date-rentals-modal .modal-actions .btn-secondary:hover::before,
+.rental-detail-modal .modal-actions .btn-secondary:hover::before {
+    left: 100%;
+}
+
+.date-rentals-modal .modal-actions .btn-secondary:active,
+.rental-detail-modal .modal-actions .btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+/* 模态框操作区域样式 */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
 }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
+    .calendar-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 10px; /* 为滚动条留出空间 */
+    }
+    
+    .calendar {
+        min-width: 600px; /* 确保在移动端可以左右滚动 */
+        width: auto;
+        margin: 0 auto;
+    }
+    
     .calendar-day {
         padding: 6px 2px;
-        min-height: 45px;
+        min-height: 60px;
         font-size: 0.8rem;
     }
     
@@ -213,17 +607,26 @@
         line-height: 1.2;
     }
     
+    .rental-more {
+        font-size: 0.55rem;
+        padding: 1px 3px;
+    }
+    
     .weekday {
         padding: 8px 4px;
         font-size: 0.8rem;
+        min-width: 40px;
     }
     
     .calendar-header {
         padding: 0 0.5rem;
+        flex-wrap: wrap;
+        gap: 10px;
     }
     
     .calendar-header h2 {
         font-size: 1.1rem;
+        margin: 0;
     }
     
     .camera-filter {
@@ -236,15 +639,36 @@
     .camera-filter label {
         font-size: 0.8rem;
     }
+    
+    /* 移动端模态框优化 */
+    .date-rentals-modal .rental-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    
+    .date-rentals-modal .btn-view-detail {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .rental-detail-modal .detail-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .rental-detail-modal .detail-row label {
+        min-width: auto;
+    }
 }
 
 @media (max-width: 480px) {
     .calendar {
-        min-width: 300px;
+        min-width: 500px;
     }
     
     .calendar-day {
-        min-height: 40px;
+        min-height: 50px;
         padding: 4px 1px;
     }
     
@@ -252,16 +676,26 @@
         font-size: 0.55rem;
         padding: 0 2px;
     }
+    
+    .rental-more {
+        font-size: 0.5rem;
+        padding: 1px 2px;
+    }
+    
+    .weekday {
+        font-size: 0.75rem;
+        padding: 6px 2px;
+    }
 }
 
 /* 超小屏幕优化 */
 @media (max-width: 360px) {
     .calendar {
-        min-width: 280px;
+        min-width: 450px;
     }
     
     .calendar-day {
-        min-height: 35px;
+        min-height: 45px;
         font-size: 0.75rem;
     }
     
@@ -274,8 +708,31 @@
         line-height: 1.1;
     }
     
-    .weekday {
-        font-size: 0.75rem;
-        padding: 6px 2px;
+    .rental-more {
+        font-size: 0.45rem;
     }
+    
+    .weekday {
+        font-size: 0.7rem;
+        padding: 5px 1px;
+    }
+}
+
+/* 移动端滚动提示 */
+.calendar-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.calendar-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.calendar-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.calendar-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
