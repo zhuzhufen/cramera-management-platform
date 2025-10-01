@@ -211,7 +211,7 @@ app.get('/cam/api/cameras/:id', async (req, res) => {
                    json_agg(
                        json_build_object(
                            'id', r.id,
-                           'customer_name', cust.name,
+                           'customer_name', r.customer_name,
                            'rental_date', r.rental_date,
                            'return_date', r.return_date,
                            'status', r.status
@@ -219,7 +219,6 @@ app.get('/cam/api/cameras/:id', async (req, res) => {
                    ) FILTER (WHERE r.id IS NOT NULL) as rental_history
             FROM cameras c
             LEFT JOIN rentals r ON c.id = r.camera_id
-            LEFT JOIN customers cust ON r.customer_id = cust.id
             WHERE c.id = $1
             GROUP BY c.id
         `, [id]);
@@ -406,7 +405,6 @@ app.get('/cam/api/rentals', async (req, res) => {
         query += ` ORDER BY r.rental_date DESC`;
         
         const result = await pool.query(query, params);
-        console.log('租赁记录查询结果:', result.rows); // 调试日志
         res.json(result.rows);
     } catch (err) {
         console.error('获取租赁记录失败:', err);
@@ -459,8 +457,6 @@ app.post('/cam/api/rentals', async (req, res) => {
             return_date 
         } = req.body;
         
-        console.log('创建租赁请求数据:', req.body); // 调试日志
-        
         // 验证必填字段
         if (!customer_name || !customer_phone) {
             return res.status(400).json({ error: '客户姓名和手机号码不能为空' });
@@ -492,8 +488,6 @@ app.post('/cam/api/rentals', async (req, res) => {
             RETURNING *
         `, [camera_id, customer_name, customer_phone, rental_date, return_date]);
         
-        console.log('创建租赁结果:', result.rows[0]); // 调试日志
-        
         res.json(result.rows[0]);
     } catch (err) {
         console.error('创建租赁记录失败:', err);
@@ -501,34 +495,6 @@ app.post('/cam/api/rentals', async (req, res) => {
     }
 });
 
-// 获取所有客户
-app.get('/cam/api/customers', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM customers ORDER BY name');
-        res.json(result.rows);
-    } catch (err) {
-        console.error('获取客户列表失败:', err);
-        res.status(500).json({ error: '获取客户列表失败' });
-    }
-});
-
-// 添加新客户
-app.post('/cam/api/customers', async (req, res) => {
-    try {
-        const { name, phone, email, id_card, address } = req.body;
-        
-        const result = await pool.query(`
-            INSERT INTO customers (name, phone, email, id_card, address)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *
-        `, [name, phone, email, id_card, address]);
-        
-        res.json(result.rows[0]);
-    } catch (err) {
-        console.error('添加客户失败:', err);
-        res.status(500).json({ error: '添加客户失败' });
-    }
-});
 
 // 添加新相机
 app.post('/cam/api/cameras', async (req, res) => {
@@ -750,12 +716,11 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
                 c.model,
                 c.agent,
                 c.id as camera_id,
-                cust.name as customer_name,
-                cust.phone as customer_phone,
+                r.customer_name,
+                r.customer_phone,
                 r.status
             FROM rentals r
             JOIN cameras c ON r.camera_id = c.id
-            JOIN customers cust ON r.customer_id = cust.id
             WHERE 1=1
         `;
         
@@ -786,7 +751,7 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
         // 租赁人筛选
         if (customer_name) {
             paramCount++;
-            query += ` AND cust.name ILIKE $${paramCount}`;
+            query += ` AND r.customer_name ILIKE $${paramCount}`;
             params.push(`%${customer_name}%`);
         }
         
