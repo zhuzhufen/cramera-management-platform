@@ -225,11 +225,11 @@
                         </div>
                         <div class="filter-group">
                             <label>租赁开始:</label>
-                            <input type="date" id="rental-date" name="rental_date" placeholder="年/月/日" min="1900-01-01">
+                            <input type="text" id="rental-date" class="datepicker-input" placeholder="选择租赁开始日期" readonly>
                         </div>
                         <div class="filter-group">
                             <label>租赁结束:</label>
-                            <input type="date" id="return-date" name="return_date" placeholder="年/月/日" min="1900-01-01">
+                            <input type="text" id="return-date" class="datepicker-input" placeholder="选择租赁结束日期" readonly>
                         </div>
                     </div>
                     <div class="search-actions">
@@ -306,11 +306,11 @@
                         </div>
                         <div class="filter-group">
                             <label>租赁开始:</label>
-                            <input type="date" id="rentals-start-date" placeholder="年/月/日" min="1900-01-01">
+                            <input type="text" id="rentals-start-date" class="datepicker-input" placeholder="选择租赁开始日期" readonly>
                         </div>
                         <div class="filter-group">
                             <label>租赁结束:</label>
-                            <input type="date" id="rentals-end-date" placeholder="年/月/日" min="1900-01-01">
+                            <input type="text" id="rentals-end-date" class="datepicker-input" placeholder="选择租赁结束日期" readonly>
                         </div>
                         <div class="filter-group">
                             <label>状态:</label>
@@ -470,44 +470,21 @@
                 </div>
                 <div class="customer-section">
                     <div class="form-group">
-                        <label>客户选择:</label>
-                        <div class="customer-options">
-                            <select name="customer_id" id="customer-select">
-                                <option value="">选择现有客户</option>
-                            </select>
-                            <button type="button" id="add-customer-btn" class="btn-secondary">新增客户</button>
-                        </div>
+                        <label>客户姓名:</label>
+                        <input type="text" name="customer_name" placeholder="输入客户姓名" required>
                     </div>
-                    <div id="new-customer-form" class="new-customer-form" style="display: none;">
-                        <div class="form-group">
-                            <label>客户姓名:</label>
-                            <input type="text" name="new_customer_name" placeholder="输入客户姓名">
-                        </div>
-                        <div class="form-group">
-                            <label>手机号码:</label>
-                            <input type="tel" name="new_customer_phone" placeholder="输入手机号码">
-                        </div>
-                        <div class="form-group">
-                            <label>身份证号:</label>
-                            <input type="text" name="new_customer_id_card" placeholder="输入身份证号">
-                        </div>
-                        <div class="form-group">
-                            <label>邮箱:</label>
-                            <input type="email" name="new_customer_email" placeholder="输入邮箱地址">
-                        </div>
-                        <div class="form-group">
-                            <label>地址:</label>
-                            <textarea name="new_customer_address" placeholder="输入地址"></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label>手机号码:</label>
+                        <input type="tel" name="customer_phone" placeholder="输入手机号码" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>租赁日期:</label>
-                    <input type="date" name="rental_date" required min="1900-01-01">
+                    <input type="text" name="rental_date" class="datepicker-input" required placeholder="选择租赁日期" readonly>
                 </div>
                 <div class="form-group">
                     <label>归还日期:</label>
-                    <input type="date" name="return_date" required min="1900-01-01">
+                    <input type="text" name="return_date" class="datepicker-input" required placeholder="选择归还日期" readonly>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('create-rental-modal')">取消</button>
@@ -665,13 +642,98 @@
                 todayHighlight: true
             });
             
-            // 创建租赁模态框的日期选择器
-            $('input[name="rental_date"], input[name="return_date"]').datepicker({
-                format: 'yyyy-mm-dd',
-                language: 'zh-CN',
-                autoclose: true,
-                todayHighlight: true
+            // 创建租赁模态框的日期选择器 - 强制触发检查
+            function initializeRentalDatePickers() {
+                const rentalDateInput = $('input[name="rental_date"]');
+                const returnDateInput = $('input[name="return_date"]');
+                
+                if (rentalDateInput.length && returnDateInput.length) {
+                    // 重新初始化日期选择器
+                    rentalDateInput.datepicker('destroy');
+                    returnDateInput.datepicker('destroy');
+                    
+                    // 租赁日期选择器
+                    rentalDateInput.datepicker({
+                        format: 'yyyy-mm-dd',
+                        language: 'zh-CN',
+                        autoclose: true,
+                        todayHighlight: true
+                    }).on('changeDate', function(e) {
+                        console.log('租赁日期变更:', e.date);
+                        // 强制触发检查
+                        setTimeout(() => {
+                            if (window.selectedCameraForRental && window.updateRentalButtonState) {
+                                window.updateRentalButtonState();
+                            }
+                        }, 50);
+                    });
+                    
+                    // 归还日期选择器
+                    returnDateInput.datepicker({
+                        format: 'yyyy-mm-dd',
+                        language: 'zh-CN',
+                        autoclose: true,
+                        todayHighlight: true
+                    }).on('changeDate', function(e) {
+                        console.log('归还日期变更:', e.date);
+                        // 强制触发检查
+                        setTimeout(() => {
+                            if (window.selectedCameraForRental && window.updateRentalButtonState) {
+                                window.updateRentalButtonState();
+                            }
+                        }, 50);
+                    });
+                    
+                    // 添加点击事件监听器，确保任何交互都能触发
+                    rentalDateInput.on('click', function() {
+                        setTimeout(() => {
+                            if (window.selectedCameraForRental && window.updateRentalButtonState) {
+                                window.updateRentalButtonState();
+                            }
+                        }, 100);
+                    });
+                    
+                    returnDateInput.on('click', function() {
+                        setTimeout(() => {
+                            if (window.selectedCameraForRental && window.updateRentalButtonState) {
+                                window.updateRentalButtonState();
+                            }
+                        }, 100);
+                    });
+                    
+                    // 监听键盘输入
+                    rentalDateInput.on('keyup', function() {
+                        if (window.selectedCameraForRental && window.updateRentalButtonState) {
+                            window.updateRentalButtonState();
+                        }
+                    });
+                    
+                    returnDateInput.on('keyup', function() {
+                        if (window.selectedCameraForRental && window.updateRentalButtonState) {
+                            window.updateRentalButtonState();
+                        }
+                    });
+                }
+            }
+            
+            // 初始初始化
+            initializeRentalDatePickers();
+            
+            // 监听模态框显示事件
+            document.addEventListener('showModal', function(e) {
+                if (e.detail.modalId === 'create-rental-modal') {
+                    setTimeout(initializeRentalDatePickers, 100);
+                }
             });
+            
+            // 覆盖showModal函数，确保日期选择器正确初始化
+            const originalShowModal = window.showModal;
+            window.showModal = function(modalId) {
+                originalShowModal(modalId);
+                if (modalId === 'create-rental-modal') {
+                    setTimeout(initializeRentalDatePickers, 200);
+                }
+            };
         });
     </script>
 </body>

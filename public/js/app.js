@@ -203,10 +203,6 @@ function setupEventListeners() {
         loadCalendar();
     });
 
-    // 新增客户按钮
-    document.getElementById('add-customer-btn').addEventListener('click', function() {
-        toggleNewCustomerForm();
-    });
 
     // 清除筛选功能
     document.getElementById('clear-filter-btn').addEventListener('click', clearAllFilters);
@@ -473,19 +469,53 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// 为日期输入添加事件监听器，检查时间冲突
-document.addEventListener('DOMContentLoaded', function() {
-    const rentalForm = document.getElementById('create-rental-form');
-    if (rentalForm) {
-        const rentalDateInput = rentalForm.querySelector('input[name="rental_date"]');
-        const returnDateInput = rentalForm.querySelector('input[name="return_date"]');
+// 为Bootstrap日期选择器添加事件监听器，检查时间冲突
+function initializeRentalDatePickers() {
+    const rentalDateInput = $('input[name="rental_date"]');
+    const returnDateInput = $('input[name="return_date"]');
+    
+    if (rentalDateInput.length && returnDateInput.length) {
+        // 移除之前的事件监听器
+        rentalDateInput.off('changeDate');
+        returnDateInput.off('changeDate');
         
-        if (rentalDateInput && returnDateInput) {
-            rentalDateInput.addEventListener('change', updateRentalButtonState);
-            returnDateInput.addEventListener('change', updateRentalButtonState);
-        }
+        // 添加新的事件监听器
+        rentalDateInput.on('changeDate', function(e) {
+            console.log('租赁日期变更:', e.date);
+            if (window.selectedCameraForRental) {
+                window.updateRentalButtonState();
+            }
+        });
+        
+        returnDateInput.on('changeDate', function(e) {
+            console.log('归还日期变更:', e.date);
+            if (window.selectedCameraForRental) {
+                window.updateRentalButtonState();
+            }
+        });
+        
+        // 同时监听input事件，确保任何日期变化都能触发
+        rentalDateInput.on('input', function() {
+            if (window.selectedCameraForRental) {
+                setTimeout(() => window.updateRentalButtonState(), 100);
+            }
+        });
+        
+        returnDateInput.on('input', function() {
+            if (window.selectedCameraForRental) {
+                setTimeout(() => window.updateRentalButtonState(), 100);
+            }
+        });
     }
-});
+}
+
+// 在显示创建租赁模态框时重新初始化日期选择器
+const originalShowCreateRentalModal = window.showCreateRentalModal;
+window.showCreateRentalModal = function(cameraId) {
+    originalShowCreateRentalModal(cameraId);
+    // 延迟初始化以确保DOM已更新
+    setTimeout(initializeRentalDatePickers, 100);
+};
 
 // 检查密码强度
 function checkPasswordStrength() {

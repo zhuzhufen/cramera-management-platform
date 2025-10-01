@@ -94,35 +94,7 @@ app.get('/cam/api/cameras', async (req, res) => {
         const params = [];
         let paramCount = 0;
         
-        // 如果提供了状态筛选
-        if (status) {
-            paramCount++;
-            whereConditions.push(`c.status = $${paramCount}`);
-            params.push(status);
-        }
-        
-        // 如果提供了租赁时间段，筛选可用相机
-        if (rental_date && return_date) {
-            // 只有当没有指定状态筛选时才应用时间冲突检查
-            if (!status) {
-                paramCount++;
-                whereConditions.push(`
-                    c.status = 'available'
-                    AND c.id NOT IN (
-                        SELECT DISTINCT camera_id 
-                        FROM rentals 
-                        WHERE status IN ('active', 'reserved')
-                        AND (
-                            (rental_date <= $${paramCount} AND return_date >= $${paramCount}) OR
-                            (rental_date <= $${paramCount + 1} AND return_date >= $${paramCount + 1}) OR
-                            (rental_date >= $${paramCount} AND return_date <= $${paramCount + 1})
-                        )
-                    )
-                `);
-                params.push(rental_date, return_date);
-                paramCount++; // 增加第二个日期参数
-            }
-        }
+        // 如果提供了状态筛选，先不在这里筛选，而是在动态状态计算后筛选
         
         // 如果提供了代理人筛选
         if (agent) {
@@ -139,7 +111,71 @@ app.get('/cam/api/cameras', async (req, res) => {
         query += ` GROUP BY c.id ORDER BY c.camera_code`;
         
         const result = await pool.query(query, params);
-        res.json(result.rows);
+        
+        // 如果提供了租赁时间段，检查时间冲突并动态更新状态
+        if (rental_date && return_date) {
+            const camerasWithDynamicStatus = await Promise.all(
+                result.rows.map(async (camera) => {
+                    // 检查该相机在指定时间段是否有冲突
+                    const conflictCheck = await pool.query(`
+                        SELECT COUNT(*) as conflict_count
+                        FROM rentals 
+                        WHERE camera_id = $1 
+                        AND status IN ('active', 'reserved')
+                        AND (
+                            (rental_date <= $2 AND return_date >= $2) OR
+                            (rental_date <= $3 AND return_date >= $3) OR
+                            (rental_date >= $2 AND return_date <= $3)
+                        )
+                    `, [camera.id, rental_date, return_date]);
+                    
+                    const hasConflict = parseInt(conflictCheck.rows[0].conflict_count) > 0;
+                    
+                    // 如果相机原本可用但有时间冲突，则动态设置为不可用
+                    if (camera.status === 'available' && hasConflict) {
+                        return {
+                            ...camera,
+                            dynamic_status: 'unavailable',
+                            dynamic_status_reason: '该时间段已被租赁'
+                        };
+                    }
+                    
+                    // 否则保持原有状态
+                    return {
+                        ...camera,
+                        dynamic_status: camera.status,
+                        dynamic_status_reason: null
+                    };
+                })
+            );
+            
+            // 应用状态筛选（如果有）
+            let filteredCameras = camerasWithDynamicStatus;
+            if (status) {
+                filteredCameras = camerasWithDynamicStatus.filter(camera => 
+                    camera.dynamic_status === status
+                );
+            }
+            
+            res.json(filteredCameras);
+        } else {
+            // 没有提供租赁时间段，返回原有状态
+            const camerasWithDefaultStatus = result.rows.map(camera => ({
+                ...camera,
+                dynamic_status: camera.status,
+                dynamic_status_reason: null
+            }));
+            
+            // 应用状态筛选（如果有）
+            let filteredCameras = camerasWithDefaultStatus;
+            if (status) {
+                filteredCameras = camerasWithDefaultStatus.filter(camera => 
+                    camera.dynamic_status === status
+                );
+            }
+            
+            res.json(filteredCameras);
+        }
     } catch (err) {
         console.error('获取相机列表失败:', err);
         res.status(500).json({ error: '获取相机列表失败' });
@@ -256,12 +292,11 @@ app.get('/cam/api/rentals/calendar', async (req, res) => {
                 c.model,
                 c.agent,
                 c.id as camera_id,
-                cust.name as customer_name,
-                cust.phone as customer_phone,
+                r.customer_name,
+                r.customer_phone,
                 r.status
             FROM rentals r
             JOIN cameras c ON r.camera_id = c.id
-            JOIN customers cust ON r.customer_id = cust.id
             WHERE (
                 -- 租赁开始日期在当前月份内
                 (r.rental_date >= $1 AND r.rental_date <= $2)
@@ -322,12 +357,11 @@ app.get('/cam/api/rentals', async (req, res) => {
                 c.model,
                 c.agent,
                 c.id as camera_id,
-                cust.name as customer_name,
-                cust.phone as customer_phone,
+                r.customer_name,
+                r.customer_phone,
                 r.status
             FROM rentals r
             JOIN cameras c ON r.camera_id = c.id
-            JOIN customers cust ON r.customer_id = cust.id
             WHERE 1=1
         `;
         
@@ -351,7 +385,7 @@ app.get('/cam/api/rentals', async (req, res) => {
         // 租赁人筛选
         if (customer_name) {
             paramCount++;
-            query += ` AND cust.name ILIKE $${paramCount}`;
+            query += ` AND r.customer_name ILIKE $${paramCount}`;
             params.push(`%${customer_name}%`);
         }
         
@@ -372,6 +406,7 @@ app.get('/cam/api/rentals', async (req, res) => {
         query += ` ORDER BY r.rental_date DESC`;
         
         const result = await pool.query(query, params);
+        console.log('租赁记录查询结果:', result.rows); // 调试日志
         res.json(result.rows);
     } catch (err) {
         console.error('获取租赁记录失败:', err);
@@ -416,7 +451,20 @@ app.get('/cam/api/rentals/check-conflict', async (req, res) => {
 // 创建新的租赁记录
 app.post('/cam/api/rentals', async (req, res) => {
     try {
-        const { camera_id, customer_id, rental_date, return_date } = req.body;
+        const { 
+            camera_id, 
+            customer_name, 
+            customer_phone, 
+            rental_date, 
+            return_date 
+        } = req.body;
+        
+        console.log('创建租赁请求数据:', req.body); // 调试日志
+        
+        // 验证必填字段
+        if (!customer_name || !customer_phone) {
+            return res.status(400).json({ error: '客户姓名和手机号码不能为空' });
+        }
         
         // 检查时间冲突
         const conflictCheck = await pool.query(`
@@ -437,14 +485,14 @@ app.post('/cam/api/rentals', async (req, res) => {
             return res.status(400).json({ error: '所选时间段与已有租赁记录冲突' });
         }
         
+        // 创建租赁记录，直接存储客户信息
         const result = await pool.query(`
-            INSERT INTO rentals (camera_id, customer_id, rental_date, return_date)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO rentals (camera_id, customer_name, customer_phone, rental_date, return_date)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *
-        `, [camera_id, customer_id, rental_date, return_date]);
+        `, [camera_id, customer_name, customer_phone, rental_date, return_date]);
         
-        // 注意：不再自动更新相机状态为'rented'，因为相机支持多次租赁
-        // 相机状态应该根据实际的租赁情况动态计算
+        console.log('创建租赁结果:', result.rows[0]); // 调试日志
         
         res.json(result.rows[0]);
     } catch (err) {

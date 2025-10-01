@@ -42,12 +42,40 @@ function renderCameras(cameras) {
         return;
     }
 
-    camerasList.innerHTML = cameras.map(camera => `
+    // 获取当前状态筛选值
+    const statusSelect = document.getElementById('status-select');
+    const statusValue = statusSelect ? statusSelect.value : '';
+    
+    // 过滤相机列表（考虑状态筛选）
+    const filteredCameras = cameras.filter(camera => {
+        if (!statusValue) return true; // 没有状态筛选，显示所有
+        
+        // 使用动态状态（如果存在），否则使用原始状态
+        const displayStatus = camera.dynamic_status || camera.status;
+        return displayStatus === statusValue;
+    });
+
+    if (filteredCameras.length === 0) {
+        camerasList.innerHTML = '<div class="loading">没有找到符合条件的相机</div>';
+        return;
+    }
+
+    camerasList.innerHTML = filteredCameras.map(camera => {
+        // 使用动态状态（如果存在），否则使用原始状态
+        const displayStatus = camera.dynamic_status || camera.status;
+        const statusText = getStatusText(displayStatus);
+        const statusClass = `status-${displayStatus}`;
+        
+        // 状态提示信息
+        const statusHint = camera.dynamic_status_reason ? 
+            `<div class="status-hint">${camera.dynamic_status_reason}</div>` : '';
+        
+        return `
         <div class="camera-card">
             <div class="camera-header">
                 <div class="camera-code">${camera.camera_code}</div>
-                <div class="status-badge status-${camera.status}">
-                    ${getStatusText(camera.status)}
+                <div class="status-badge ${statusClass}">
+                    ${statusText}
                 </div>
             </div>
             <div class="camera-info">
@@ -55,17 +83,19 @@ function renderCameras(cameras) {
                 <p>序列号: ${camera.serial_number || '无'}</p>
                 <p>代理人: ${camera.agent || '无'}</p>
                 ${camera.description ? `<p>描述: ${camera.description}</p>` : ''}
+                ${statusHint}
             </div>
             <div class="camera-actions">
                 <button onclick="deleteCamera(${camera.id})" class="btn-red">删除</button>
                 <button onclick="editCamera(${camera.id})" class="btn-blue">修改</button>
-                ${camera.status === 'available' ? 
+                ${displayStatus === 'available' ? 
                     `<button onclick="showCreateRentalModal(${camera.id})" class="btn-green">租赁</button>` : 
                     `<button disabled class="btn-disabled">不可租赁</button>`
                 }
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // 搜索相机

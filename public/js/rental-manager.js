@@ -181,33 +181,64 @@ async function showCreateRentalModal(cameraId) {
     document.getElementById('rental-camera-info').textContent = 
         `${selectedCameraForRental.camera_code} - ${selectedCameraForRental.brand} ${selectedCameraForRental.model}`;
 
-    // 加载客户列表
-    try {
-        const response = await fetch(CONFIG.buildUrl(CONFIG.CUSTOMER.LIST));
-        if (!response.ok) throw new Error('加载客户列表失败');
-
-        const customers = await response.json();
-        const customerSelect = document.querySelector('#create-rental-form select[name="customer_id"]');
+    // 设置默认日期
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    
+    document.querySelector('#create-rental-form input[name="rental_date"]').value = today;
+    document.querySelector('#create-rental-form input[name="return_date"]').value = tomorrow;
+    
+    // 清空客户信息表单
+    document.querySelector('#create-rental-form input[name="customer_name"]').value = '';
+    document.querySelector('#create-rental-form input[name="customer_phone"]').value = '';
+    
+    // 强制重新初始化日期选择器
+    setTimeout(() => {
+        const rentalDateInput = $('input[name="rental_date"]');
+        const returnDateInput = $('input[name="return_date"]');
         
-        customerSelect.innerHTML = '<option value="">选择客户</option>' +
-            customers.map(customer => `
-                <option value="${customer.id}">${customer.name} - ${customer.phone}</option>
-            `).join('');
+        if (rentalDateInput.length && returnDateInput.length) {
+            // 重新初始化日期选择器
+            rentalDateInput.datepicker('destroy');
+            returnDateInput.datepicker('destroy');
+            
+            // 租赁日期选择器
+            rentalDateInput.datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                autoclose: true,
+                todayHighlight: true
+            }).on('changeDate', function(e) {
+                console.log('租赁日期变更:', e.date);
+                updateRentalButtonState();
+            });
+            
+            // 归还日期选择器
+            returnDateInput.datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                autoclose: true,
+                todayHighlight: true
+            }).on('changeDate', function(e) {
+                console.log('归还日期变更:', e.date);
+                updateRentalButtonState();
+            });
+            
+            // 添加input事件监听器
+            rentalDateInput.on('input', function() {
+                setTimeout(updateRentalButtonState, 100);
+            });
+            
+            returnDateInput.on('input', function() {
+                setTimeout(updateRentalButtonState, 100);
+            });
+        }
+    }, 100);
+    
+    // 检查时间冲突
+    updateRentalButtonState();
 
-        // 设置默认日期
-        const today = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-        
-        document.querySelector('#create-rental-form input[name="rental_date"]').value = today;
-        document.querySelector('#create-rental-form input[name="return_date"]').value = tomorrow;
-        
-        // 检查时间冲突
-        updateRentalButtonState();
-
-        showModal('create-rental-modal');
-    } catch (error) {
-        Message.error('加载客户列表失败: ' + error.message);
-    }
+    showModal('create-rental-modal');
 }
 
 // 检查租赁时间冲突
@@ -262,55 +293,21 @@ async function createRental(event) {
     event.preventDefault();
     
     const formData = new FormData(event.target);
-    const newCustomerForm = document.getElementById('new-customer-form');
-    const isNewCustomer = newCustomerForm.style.display === 'block';
     
-    let customerId = parseInt(formData.get('customer_id'));
+    // 获取客户信息
+    const customerName = formData.get('customer_name');
+    const customerPhone = formData.get('customer_phone');
     
-    // 如果是新增客户，先创建客户
-    if (isNewCustomer) {
-        const newCustomerData = {
-            name: formData.get('new_customer_name'),
-            phone: formData.get('new_customer_phone'),
-            email: formData.get('new_customer_email'),
-            id_card: formData.get('new_customer_id_card'),
-            address: formData.get('new_customer_address')
-        };
-        
-        // 验证必填字段
-        if (!newCustomerData.name || !newCustomerData.phone) {
-            Message.warning('请填写客户姓名和手机号码');
-            return;
-        }
-        
-        try {
-            const customerResponse = await fetch(CONFIG.buildUrl(CONFIG.CUSTOMER.CREATE), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newCustomerData)
-            });
-            
-            if (!customerResponse.ok) throw new Error('创建客户失败');
-            
-            const newCustomer = await customerResponse.json();
-            customerId = newCustomer.id;
-        } catch (error) {
-            Message.error('创建客户失败: ' + error.message);
-            return;
-        }
-    }
-    
-    // 验证客户选择
-    if (!customerId) {
-        Message.warning('请选择客户或新增客户');
+    // 验证必填字段
+    if (!customerName || !customerPhone) {
+        Message.warning('请填写客户姓名和手机号码');
         return;
     }
     
     const rentalData = {
         camera_id: selectedCameraForRental.id,
-        customer_id: customerId,
+        customer_name: customerName,
+        customer_phone: customerPhone,
         rental_date: formData.get('rental_date'),
         return_date: formData.get('return_date')
     };
@@ -330,9 +327,6 @@ async function createRental(event) {
         closeModal('create-rental-modal');
         event.target.reset();
         
-        // 重置客户选择状态
-        toggleNewCustomerForm();
-        
         // 刷新相关数据
         loadCameras();
         loadCalendar();
@@ -341,32 +335,6 @@ async function createRental(event) {
         Message.success('租赁创建成功！');
     } catch (error) {
         Message.error('创建租赁失败: ' + error.message);
-    }
-}
-
-// 切换新增客户表单显示
-function toggleNewCustomerForm() {
-    const newCustomerForm = document.getElementById('new-customer-form');
-    const customerSelect = document.querySelector('#create-rental-form select[name="customer_id"]');
-    const addCustomerBtn = document.getElementById('add-customer-btn');
-    
-    if (newCustomerForm.style.display === 'none') {
-        // 显示新增客户表单
-        newCustomerForm.style.display = 'block';
-        customerSelect.disabled = true;
-        addCustomerBtn.textContent = '选择现有客户';
-        addCustomerBtn.style.background = '#6c757d';
-        
-        // 清空表单
-        document.querySelectorAll('#new-customer-form input, #new-customer-form textarea').forEach(input => {
-            input.value = '';
-        });
-    } else {
-        // 隐藏新增客户表单
-        newCustomerForm.style.display = 'none';
-        customerSelect.disabled = false;
-        addCustomerBtn.textContent = '新增客户';
-        addCustomerBtn.style.background = '';
     }
 }
 
