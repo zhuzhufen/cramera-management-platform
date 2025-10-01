@@ -14,8 +14,10 @@ class CryptoUtils {
             // 提取加密数据（剩余部分）
             const encrypted = combined.slice(16);
             
-            // 使用固定密钥解密（与前端保持一致）
-            const key = this.deriveKey('camera_rental_encryption_key_2024', 'camera_rental_salt');
+            // 使用从环境变量获取的密钥解密（与前端保持一致）
+            const encryptionKey = this.getEncryptionKey();
+            const salt = this.getEncryptionSalt();
+            const key = this.deriveKey(encryptionKey, salt);
             
             // 创建解密器
             const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
@@ -40,6 +42,16 @@ class CryptoUtils {
             32, // 256位
             'sha256'
         );
+    }
+
+    // 获取加密密钥（与后端API保持一致）
+    static getEncryptionKey() {
+        return process.env.ENCRYPTION_KEY || 'camera_rental_encryption_key_2024';
+    }
+
+    // 获取加密盐值（与后端API保持一致）
+    static getEncryptionSalt() {
+        return process.env.ENCRYPTION_SALT || 'camera_rental_salt';
     }
 
     // 验证加密数据格式
@@ -93,7 +105,9 @@ class CryptoUtils {
 
     // 模拟前端加密（用于测试）
     static simulateFrontendEncryption(password) {
-        const key = this.deriveKey('camera_rental_encryption_key_2024', 'camera_rental_salt');
+        const encryptionKey = this.getEncryptionKey();
+        const salt = this.getEncryptionSalt();
+        const key = this.deriveKey(encryptionKey, salt);
         const iv = crypto.randomBytes(16);
         
         const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);

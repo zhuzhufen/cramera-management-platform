@@ -99,17 +99,24 @@ class CryptoUtils {
         }
     }
 
-    // 简化的AES加密（使用固定密钥，仅用于演示）
+    // 简化的AES加密（从后端获取密钥）
     static async simpleEncrypt(password) {
         try {
-            // 使用固定的对称密钥（生产环境应该从服务器获取）
-            const fixedKey = 'camera_rental_encryption_key_2024';
+            // 从后端获取加密密钥
+            const response = await fetch(CONFIG.buildUrl('/auth/encryption-key'));
+            if (!response.ok) {
+                throw new Error('获取加密密钥失败');
+            }
+            
+            const keyData = await response.json();
+            const encryptionKey = keyData.key;
+            const salt = keyData.salt;
             
             // 生成密钥
             const encoder = new TextEncoder();
             const keyMaterial = await window.crypto.subtle.importKey(
                 "raw",
-                encoder.encode(fixedKey),
+                encoder.encode(encryptionKey),
                 { name: "PBKDF2" },
                 false,
                 ["deriveKey"]
@@ -118,7 +125,7 @@ class CryptoUtils {
             const key = await window.crypto.subtle.deriveKey(
                 {
                     name: "PBKDF2",
-                    salt: encoder.encode("camera_rental_salt"),
+                    salt: encoder.encode(salt),
                     iterations: 100000,
                     hash: "SHA-256"
                 },

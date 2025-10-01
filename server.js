@@ -585,10 +585,7 @@ app.post('/cam/api/auth/login', async (req, res) => {
         // 如果提供了加密密码，先解密
         if (encrypted_password) {
             try {
-                console.log('接收到加密密码:', encrypted_password);
-                console.log('加密数据长度:', encrypted_password.length);
                 plainPassword = CryptoUtils.decryptPassword(encrypted_password);
-                console.log('解密后的密码:', plainPassword);
             } catch (decryptError) {
                 console.error('密码解密失败:', decryptError);
                 return res.status(400).json({ error: '密码格式错误' });
@@ -1122,6 +1119,18 @@ app.delete('/cam/api/users/:id', authenticateToken, requireAdmin, async (req, re
         console.error('删除用户失败:', err);
         res.status(500).json({ error: '删除用户失败' });
     }
+});
+
+// 获取加密密钥
+app.get('/cam/api/auth/encryption-key', (req, res) => {
+    // 生产环境应该从环境变量或密钥管理服务获取
+    const encryptionKey = process.env.ENCRYPTION_KEY || 'camera_rental_encryption_key_2024';
+    const salt = process.env.ENCRYPTION_SALT || 'camera_rental_salt';
+    
+    res.json({
+        key: encryptionKey,
+        salt: salt
+    });
 });
 
 // 修改密码
