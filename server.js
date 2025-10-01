@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const CryptoUtils = require('./utils/crypto-utils');
 
 const app = express();
 const port = 3000;
@@ -561,9 +562,9 @@ app.delete('/cam/api/rentals/:id', async (req, res) => {
 // 用户登录
 app.post('/cam/api/auth/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, encrypted_password } = req.body;
         
-        if (!username || !password) {
+        if (!username || (!password && !encrypted_password)) {
             return res.status(400).json({ error: '用户名和密码不能为空' });
         }
         
@@ -579,8 +580,25 @@ app.post('/cam/api/auth/login', async (req, res) => {
         
         const user = result.rows[0];
         
+        let plainPassword;
+        
+        // 如果提供了加密密码，先解密
+        if (encrypted_password) {
+            try {
+                console.log('接收到加密密码:', encrypted_password);
+                console.log('加密数据长度:', encrypted_password.length);
+                plainPassword = CryptoUtils.decryptPassword(encrypted_password);
+                console.log('解密后的密码:', plainPassword);
+            } catch (decryptError) {
+                console.error('密码解密失败:', decryptError);
+                return res.status(400).json({ error: '密码格式错误' });
+            }
+        } else {
+            plainPassword = password;
+        }
+        
         // 验证密码
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await bcrypt.compare(plainPassword, user.password);
         if (!isValidPassword) {
             return res.status(401).json({ error: '用户名或密码错误' });
         }
@@ -942,9 +960,9 @@ app.get('/cam/api/users/:id', authenticateToken, requireAdmin, async (req, res) 
 // 添加新用户（需要管理员权限）
 app.post('/cam/api/users', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        const { username, password, role, agent_name } = req.body;
+        const { username, password, encrypted_password, role, agent_name } = req.body;
         
-        if (!username || !password || !role || !agent_name) {
+        if (!username || (!password && !encrypted_password) || !role || !agent_name) {
             return res.status(400).json({ error: '用户名、密码、角色和姓名不能为空' });
         }
         
@@ -963,8 +981,22 @@ app.post('/cam/api/users', authenticateToken, requireAdmin, async (req, res) => 
             return res.status(400).json({ error: '角色必须是admin或agent' });
         }
         
+        let plainPassword;
+        
+        // 如果提供了加密密码，先解密
+        if (encrypted_password) {
+            try {
+                plainPassword = CryptoUtils.decryptPassword(encrypted_password);
+            } catch (decryptError) {
+                console.error('密码解密失败:', decryptError);
+                return res.status(400).json({ error: '密码格式错误' });
+            }
+        } else {
+            plainPassword = password;
+        }
+        
         // 加密密码
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(plainPassword, 10);
         
         const result = await pool.query(`
             INSERT INTO users (username, password, role, agent_name)
@@ -983,7 +1015,7 @@ app.post('/cam/api/users', authenticateToken, requireAdmin, async (req, res) => 
 app.put('/cam/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, agent_name, password } = req.body;
+        const { role, agent_name, password, encrypted_password } = req.body;
         
         // 检查用户是否存在
         const userCheck = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
@@ -1013,9 +1045,23 @@ app.put('/cam/api/users/:id', authenticateToken, requireAdmin, async (req, res) 
             params.push(agent_name);
         }
         
-        if (password) {
+        if (password || encrypted_password) {
             paramCount++;
-            const hashedPassword = await bcrypt.hash(password, 10);
+            let plainPassword;
+            
+            // 如果提供了加密密码，先解密
+            if (encrypted_password) {
+                try {
+                    plainPassword = CryptoUtils.decryptPassword(encrypted_password);
+                } catch (decryptError) {
+                    console.error('密码解密失败:', decryptError);
+                    return res.status(400).json({ error: '密码格式错误' });
+                }
+            } else {
+                plainPassword = password;
+            }
+            
+            const hashedPassword = await bcrypt.hash(plainPassword, 10);
             updateFields.push(`password = $${paramCount}`);
             params.push(hashedPassword);
         }

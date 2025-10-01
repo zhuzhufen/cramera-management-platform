@@ -253,12 +253,18 @@ async function login(event) {
     const password = document.getElementById('password').value;
     
     try {
+        // 前端加密密码
+        const encryptedPassword = await CryptoUtils.simpleEncrypt(password);
+        
         const response = await fetch(CONFIG.buildUrl('/auth/login'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ 
+                username, 
+                encrypted_password: encryptedPassword 
+            })
         });
         
         if (!response.ok) {

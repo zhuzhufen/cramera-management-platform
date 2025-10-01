@@ -103,15 +103,20 @@ async function addUser(event) {
     event.preventDefault();
     
     const formData = new FormData(event.target);
-    const userData = {
-        username: formData.get('username'),
-        password: formData.get('password'),
-        agent_name: formData.get('agent_name'),
-        role: formData.get('role'),
-        status: formData.get('status')
-    };
-
+    const password = formData.get('password');
+    
     try {
+        // 前端加密密码
+        const encryptedPassword = await CryptoUtils.simpleEncrypt(password);
+        
+        const userData = {
+            username: formData.get('username'),
+            encrypted_password: encryptedPassword,
+            agent_name: formData.get('agent_name'),
+            role: formData.get('role'),
+            status: formData.get('status')
+        };
+
         const response = await authFetch(CONFIG.buildUrl(CONFIG.USER.CREATE), {
             method: 'POST',
             headers: {
@@ -178,7 +183,14 @@ async function editUser(event) {
     // 如果有新密码，则更新密码
     const newPassword = formData.get('password');
     if (newPassword) {
-        userData.password = newPassword;
+        try {
+            // 前端加密密码
+            const encryptedPassword = await CryptoUtils.simpleEncrypt(newPassword);
+            userData.encrypted_password = encryptedPassword;
+        } catch (error) {
+            Message.error('密码加密失败: ' + error.message);
+            return;
+        }
     }
 
     try {
