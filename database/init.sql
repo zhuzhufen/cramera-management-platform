@@ -61,12 +61,6 @@ CREATE INDEX IF NOT EXISTS idx_rentals_dates ON rentals(rental_date, return_date
 CREATE INDEX IF NOT EXISTS idx_rentals_camera_id ON rentals(camera_id);
 CREATE INDEX IF NOT EXISTS idx_rentals_status ON rentals(status);
 
--- 插入示例用户数据（密码为123456的bcrypt哈希值）
-INSERT INTO users (username, password, role, agent_name) VALUES
-('admin', '$2b$10$8iAD2R.SDGBB4Qrm3uwmXOU21m0T6g9pON/mAxisrG9iGDRurOSNS', 'admin', NULL),
-('zhangsan', '$2b$10$8iAD2R.SDGBB4Qrm3uwmXOU21m0T6g9pON/mAxisrG9iGDRurOSNS', 'agent', '张三'),
-('lisi', '$2b$10$8iAD2R.SDGBB4Qrm3uwmXOU21m0T6g9pON/mAxisrG9iGDRurOSNS', 'agent', '李四'),
-('wangwu', '$2b$10$8iAD2R.SDGBB4Qrm3uwmXOU21m0T6g9pON/mAxisrG9iGDRurOSNS', 'agent', '王五');
 
 -- 插入示例数据
 INSERT INTO cameras (camera_code, brand, model, serial_number, agent, description, status) VALUES

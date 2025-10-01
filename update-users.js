@@ -14,13 +14,8 @@ async function updateUsers() {
         await pool.query('DELETE FROM users');
         
         // 插入新用户数据
-        await pool.query(`
-            INSERT INTO users (username, password, role, agent_name) VALUES 
-            ('admin', '$2b$10$S5byTFxZS5nxRHWdRgWld.Ndf3y.sQezucdsNeBJSPPz3gx.FY6X2', 'admin', NULL),
-            ('zhangsan', '$2b$10$S5byTFxZS5nxRHWdRgWld.Ndf3y.sQezucdsNeBJSPPz3gx.FY6X2', 'agent', '张三'),
-            ('lisi', '$2b$10$S5byTFxZS5nxRHWdRgWld.Ndf3y.sQezucdsNeBJSPPz3gx.FY6X2', 'agent', '李四'),
-            ('wangwu', '$2b$10$S5byTFxZS5nxRHWdRgWld.Ndf3y.sQezucdsNeBJSPPz3gx.FY6X2', 'agent', '王五')
-        `);
+        // 注意：这里不再插入测试账号，请根据需要添加实际用户数据
+        console.log('用户数据已清空，请根据需要添加实际用户数据');
         
         console.log('用户数据更新成功！');
     } catch (error) {
