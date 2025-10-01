@@ -8,8 +8,26 @@ let selectedCameraId = ''; // 用于日历筛选
 let currentUser = null;
 let authToken = localStorage.getItem('authToken');
 
+// 加载动画控制函数
+function showLoading(text = '加载中...') {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingText = loadingOverlay.querySelector('.loading-text');
+    loadingText.textContent = text;
+    loadingOverlay.classList.add('active');
+}
+
+function hideLoading() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    loadingOverlay.classList.remove('active');
+}
+
 // DOM 加载完成后初始化
 document.addEventListener('DOMContentLoaded', function() {
+    // 页面加载完成后添加平滑过渡
+    window.addEventListener('load', function() {
+        document.body.classList.add('loaded');
+    });
+    
     initializeApp();
 });
 
@@ -53,14 +71,33 @@ async function checkAuth() {
 
 // 显示登录界面
 function showLogin() {
-    document.getElementById('login-container').style.display = 'flex';
-    document.getElementById('app-container').style.display = 'none';
+    const loginContainer = document.getElementById('login-container');
+    const appContainer = document.getElementById('app-container');
+    
+    // 先隐藏应用容器
+    appContainer.style.display = 'none';
+    
+    // 显示登录容器并添加过渡效果
+    loginContainer.style.display = 'flex';
+    setTimeout(() => {
+        loginContainer.classList.add('loaded');
+    }, 10);
 }
 
 // 显示主应用界面
 function showApp() {
-    document.getElementById('login-container').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
+    const loginContainer = document.getElementById('login-container');
+    const appContainer = document.getElementById('app-container');
+    
+    // 先隐藏登录容器
+    loginContainer.style.display = 'none';
+    loginContainer.classList.remove('loaded');
+    
+    // 显示应用容器并添加过渡效果
+    appContainer.style.display = 'block';
+    setTimeout(() => {
+        appContainer.classList.add('loaded');
+    }, 10);
     
     // 更新用户信息 - 显示姓名（手机号）-角色
     const roleText = currentUser.role === 'admin' ? '管理员' : '代理人';
@@ -73,10 +110,15 @@ function showApp() {
     // 根据屏幕尺寸设置筛选区域默认状态
     initializeFiltersState();
     
-    // 加载数据
-    loadCameras();
-    loadCalendar();
-    loadRentals();
+// 加载数据
+showLoading('正在加载数据...');
+Promise.all([
+    loadCameras(),
+    loadCalendar(),
+    loadRentals()
+]).finally(() => {
+    hideLoading();
+});
 }
 
 // 根据用户角色调整界面
