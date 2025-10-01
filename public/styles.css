@@ -1,0 +1,2514 @@
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.app-container {
+    max-width: 100%;
+    min-height: 100vh;
+    background: white;
+}
+
+/* 头部样式 */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.nav-tabs {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255,255,255,0.1);
+    border-radius: 25px;
+    padding: 4px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* 主要内容区域 */
+.main-content {
+    padding: 1rem;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 搜索栏样式 */
+.search-bar {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+.search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.search-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
+    white-space: nowrap; /* 防止文字换行 */
+}
+
+.toggle-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+    background: #5a6268;
+}
+
+.search-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    height: 42px;
+    box-sizing: border-box;
+}
+
+.filter-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-group input::placeholder {
+    color: #adb5bd;
+}
+
+/* 日期输入框样式 */
+.filter-group input[type="date"] {
+    position: relative;
+    min-height: auto;
+}
+
+.filter-group input[type="date"]:not(:focus):invalid::before {
+    content: attr(placeholder);
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    pointer-events: none;
+    font-size: 0.9rem;
+}
+
+.filter-group input[type="date"]:focus::before {
+    display: none;
+}
+
+.filter-group input[type="date"]:valid::before {
+    display: none;
+}
+
+.search-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.search-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.search-actions .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-actions .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.search-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a42a8 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.search-actions .btn-primary:hover::before {
+    left: 100%;
+}
+
+.search-actions .btn-primary:active {
+    transform: translateY(-1px) scale(1);
+    box-shadow: 0 3px 8px rgba(102, 126, 234, 0.3);
+}
+
+.search-actions .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-actions .btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.search-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #727b84 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+}
+
+.search-actions .btn-secondary:hover::before {
+    left: 100%;
+}
+
+.search-actions .btn-secondary:active {
+    transform: translateY(-1px) scale(1);
+    box-shadow: 0 3px 8px rgba(108, 117, 125, 0.3);
+}
+
+/* 搜索按钮特殊样式 */
+#search-btn,
+#calendar-search-btn,
+#rentals-search-btn,
+#users-search-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#search-btn::before,
+#calendar-search-btn::before,
+#rentals-search-btn::before,
+#users-search-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+#search-btn:hover,
+#calendar-search-btn:hover,
+#rentals-search-btn:hover,
+#users-search-btn:hover {
+    background: linear-gradient(135deg, #20c997 0%, #1ba87e 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+#search-btn:hover::before,
+#calendar-search-btn:hover::before,
+#rentals-search-btn:hover::before,
+#users-search-btn:hover::before {
+    left: 100%;
+}
+
+#search-btn:active,
+#calendar-search-btn:active,
+#rentals-search-btn:active,
+#users-search-btn:active {
+    transform: translateY(-1px) scale(1);
+    box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* 添加按钮特殊样式 */
+#add-camera-btn,
+#add-user-btn {
+    background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#add-camera-btn::before,
+#add-user-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+#add-camera-btn:hover,
+#add-user-btn:hover {
+    background: linear-gradient(135deg, #e55a00 0%, #cc4b00 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(253, 126, 20, 0.4);
+}
+
+#add-camera-btn:hover::before,
+#add-user-btn:hover::before {
+    left: 100%;
+}
+
+#add-camera-btn:active,
+#add-user-btn:active {
+    transform: translateY(-1px) scale(1);
+    box-shadow: 0 3px 8px rgba(253, 126, 20, 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .search-filters {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        display: none; /* 移动端默认隐藏筛选区域 */
+    }
+    
+    .filter-group input {
+        height: 44px;
+        font-size: 16px; /* 防止iOS缩放 */
+    }
+    
+    /* 专门针对移动端日期输入框的调整 */
+    .filter-group input[type="date"] {
+        height: 44px;
+        font-size: 16px;
+        line-height: 1.5;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    
+    .search-actions {
+        justify-content: stretch;
+    }
+    
+    .search-actions button {
+        flex: 1;
+        min-width: auto;
+        height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        padding: 1rem;
+    }
+    
+    .search-actions {
+        flex-direction: column;
+    }
+    
+    .search-actions button {
+        width: 100%;
+    }
+}
+
+
+/* 相机网格样式 */
+.cameras-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.camera-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.camera-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.camera-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.camera-code {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.agent-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-available {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-unavailable {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.btn-disabled {
+    background: #6c757d;
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.camera-info {
+    margin-bottom: 1rem;
+}
+
+.camera-info p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.camera-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.camera-actions button {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    min-width: 80px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+/* 白色按钮 - 详情 */
+.btn-white {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #495057;
+    border: 2px solid #e9ecef;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-white::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.05), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-white:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: #dee2e6;
+}
+
+.btn-white:hover::before {
+    left: 100%;
+}
+
+.btn-white:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 蓝色按钮 - 修改/保存 */
+.btn-blue {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-blue::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-blue:hover {
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+}
+
+.btn-blue:hover::before {
+    left: 100%;
+}
+
+.btn-blue:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(25, 118, 210, 0.3);
+}
+
+/* 绿色按钮 - 租赁/通过/添加 */
+.btn-green {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-green::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-green:hover {
+    background: linear-gradient(135deg, #20c997 0%, #1ba87e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.btn-green:hover::before {
+    left: 100%;
+}
+
+.btn-green:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+/* 红色按钮 - 删除/取消 */
+.btn-red {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-red::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-red:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.btn-red:hover::before {
+    left: 100%;
+}
+
+.btn-red:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+/* 橙色按钮 - 警告/特殊操作 */
+.btn-orange {
+    background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(253, 126, 20, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-orange::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-orange:hover {
+    background: linear-gradient(135deg, #e55a00 0%, #cc4b00 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(253, 126, 20, 0.4);
+}
+
+.btn-orange:hover::before {
+    left: 100%;
+}
+
+.btn-orange:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(253, 126, 20, 0.3);
+}
+
+/* 紫色按钮 - 特殊功能 */
+.btn-purple {
+    background: linear-gradient(135deg, #6f42c1 0%, #5a2d91 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-purple::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-purple:hover {
+    background: linear-gradient(135deg, #5a2d91 0%, #4a2378 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(111, 66, 193, 0.4);
+}
+
+.btn-purple:hover::before {
+    left: 100%;
+}
+
+.btn-purple:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
+}
+
+/* 日历样式 */
+.calendar-controls {
+    margin-bottom: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.calendar-header button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    min-width: 60px;
+}
+
+.camera-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+}
+
+.camera-filter label {
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.camera-filter select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.calendar-container {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.calendar {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    min-width: 320px;
+    width: 100%;
+}
+
+/* 空闲日期样式 - 绿色 */
+.calendar-day {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #c3e6cb;
+}
+
+.calendar-day .day-number {
+    color: #155724;
+    font-weight: 600;
+}
+
+/* 租赁日期样式 - 黄色 */
+.calendar-day.rented {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border: 2px solid #ffc107;
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+.calendar-day.rented .day-number {
+    font-weight: 700;
+    color: #856404;
+}
+
+.calendar-day.rented .rental-event {
+    background: rgba(255, 255, 255, 0.9);
+    color: #856404;
+    font-weight: 600;
+    border: 1px solid #ffc107;
+}
+
+/* 进行中租赁日期样式 - 深黄色 */
+.calendar-day.active-rental {
+    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    color: #856404;
+    border: 2px solid #f39c12;
+    box-shadow: 0 2px 4px rgba(243, 156, 18, 0.3);
+}
+
+.calendar-day.active-rental .day-number {
+    font-weight: 700;
+    color: #856404;
+}
+
+.calendar-day.active-rental .rental-event {
+    background: rgba(255, 255, 255, 0.9);
+    color: #856404;
+    font-weight: 600;
+    border: 1px solid #f39c12;
+}
+
+/* 已完成租赁日期样式 - 浅黄色 */
+.calendar-day.completed-rental {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border: 2px solid #ffc107;
+}
+
+.calendar-day.completed-rental .day-number {
+    font-weight: 700;
+    color: #856404;
+}
+
+.calendar-day.completed-rental .rental-event {
+    background: rgba(255, 255, 255, 0.9);
+    color: #856404;
+    font-weight: 600;
+    border: 1px solid #ffc107;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.weekday {
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    padding: 12px 8px;
+    text-align: center;
+    border-right: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+    min-height: 60px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-day:nth-child(7n) {
+    border-right: none;
+}
+
+.calendar-day.empty {
+    background: #f8f9fa;
+    cursor: default;
+}
+
+.calendar-day:hover:not(.empty) {
+    background: #f8f9fa;
+}
+
+.day-number {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.rental-event {
+    background: #667eea;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin: 1px 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(5px);
+    }
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    position: relative;
+}
+
+/* 模态窗口滚动条样式 */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a42a8 100%);
+}
+
+.modal.active .modal-content {
+    transform: scale(1);
+    opacity: 1;
+    animation: modalContentSlideIn 0.3s ease;
+}
+
+@keyframes modalContentSlideIn {
+    from {
+        transform: scale(0.9) translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.modal-content h3 {
+    margin: 0 0 1.5rem 0;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 密码强度指示器样式 */
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-bar {
+    width: 100%;
+    height: 6px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-fill.weak {
+    width: 25%;
+    background-color: #ff4757;
+}
+
+.strength-fill.fair {
+    width: 50%;
+    background-color: #ffa502;
+}
+
+.strength-fill.good {
+    width: 75%;
+    background-color: #2ed573;
+}
+
+.strength-fill.strong {
+    width: 100%;
+    background-color: #1e90ff;
+}
+
+.strength-text {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+/* 密码要求列表样式 */
+.password-requirements {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #007bff;
+}
+
+.password-requirements p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.password-requirements ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.password-requirements li {
+    margin-bottom: 0.2rem;
+}
+
+.password-requirements li.valid {
+    color: #28a745;
+    text-decoration: line-through;
+}
+
+.password-requirements li.invalid {
+    color: #dc3545;
+}
+
+/* 表单样式 */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+/* 客户选择样式 */
+.customer-options {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.customer-options select {
+    flex: 2;
+}
+
+.customer-options button {
+    flex: 1;
+    padding: 10px 12px;
+    white-space: nowrap;
+}
+
+.new-customer-form {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    margin-top: 1rem;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.5rem;
+}
+
+.form-actions button {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-actions .btn-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.form-actions .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.form-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #20c997 0%, #1ba87e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.form-actions .btn-primary:hover::before {
+    left: 100%;
+}
+
+.form-actions .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.form-actions .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+.form-actions .btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.form-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #727b84 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+.form-actions .btn-secondary:hover::before {
+    left: 100%;
+}
+
+.form-actions .btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+}
+
+/* 模态窗口特殊按钮样式 */
+#add-camera-form .form-actions .btn-primary,
+#create-rental-form .form-actions .btn-primary,
+#add-user-form .form-actions .btn-primary,
+#edit-user-form .form-actions .btn-primary,
+#change-password-form .form-actions .btn-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+#add-camera-form .form-actions .btn-primary:hover,
+#create-rental-form .form-actions .btn-primary:hover,
+#add-user-form .form-actions .btn-primary:hover,
+#edit-user-form .form-actions .btn-primary:hover,
+#change-password-form .form-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #20c997 0%, #1ba87e 100%);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+#add-camera-form .form-actions .btn-secondary,
+#create-rental-form .form-actions .btn-secondary,
+#add-user-form .form-actions .btn-secondary,
+#edit-user-form .form-actions .btn-secondary,
+#change-password-form .form-actions .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+}
+
+#add-camera-form .form-actions .btn-secondary:hover,
+#create-rental-form .form-actions .btn-secondary:hover,
+#add-user-form .form-actions .btn-secondary:hover,
+#edit-user-form .form-actions .btn-secondary:hover,
+#change-password-form .form-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #727b84 100%);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+/* 租赁历史表格样式 */
+.rental-history {
+    margin-top: 1.5rem;
+}
+
+.rental-history h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.rental-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.rental-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.rental-table th {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+    white-space: nowrap;
+}
+
+.rental-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.rental-table tr:last-child td {
+    border-bottom: none;
+}
+
+.rental-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* 分页控件样式 */
+.pagination-controls {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pagination-info {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pagination-btn {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    text-align: center;
+}
+
+.pagination-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.pagination-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.pagination-btn:disabled {
+    background: #6c757d;
+    color: white;
+    border-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* 超过五条换行样式 */
+.rental-table tr.new-row {
+    border-top: 2px solid #e9ecef;
+}
+
+/* 租赁状态徽章样式 */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-completed {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-overdue {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-upcoming {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-unknown {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+/* 租赁记录表格样式 - 与用户管理页面保持一致 */
+.rentals-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 16px;
+    border: 2px solid #e3f2fd;
+    background: linear-gradient(135deg, #f8fdff 0%, #f0f8ff 100%);
+    box-shadow: 0 4px 20px rgba(30, 136, 229, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.rentals-table-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1e88e5, #00bcd4, #1e88e5);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+.rentals-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+    min-width: 800px;
+    background: transparent;
+}
+
+.rentals-table th {
+    background: linear-gradient(135deg, #1e88e5 0%, #00bcd4 100%);
+    color: white;
+    padding: 20px 24px;
+    text-align: left;
+    font-weight: 700;
+    border: none;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.rentals-table th:first-child {
+    border-top-left-radius: 14px;
+}
+
+.rentals-table th:last-child {
+    border-top-right-radius: 14px;
+}
+
+.rentals-table th::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.rentals-table th:hover::before {
+    transform: translateX(100%);
+}
+
+.rentals-table td {
+    padding: 18px 24px;
+    border-bottom: 1px solid #e1f5fe;
+    vertical-align: middle;
+    color: #37474f;
+    background: white;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.rentals-table td::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #1e88e5, #00bcd4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.rentals-table tr:first-child td:first-child {
+    border-top-left-radius: 14px;
+}
+
+.rentals-table tr:first-child td:last-child {
+    border-top-right-radius: 14px;
+}
+
+.rentals-table tr:last-child td {
+    border-bottom: none;
+}
+
+.rentals-table tr:last-child td:first-child {
+    border-bottom-left-radius: 14px;
+}
+
+.rentals-table tr:last-child td:last-child {
+    border-bottom-right-radius: 14px;
+}
+
+.rentals-table tr:hover td {
+    background: linear-gradient(135deg, #f3f9ff 0%, #e8f4fd 100%);
+    transform: translateX(8px);
+    box-shadow: -8px 0 0 rgba(30, 136, 229, 0.1);
+}
+
+.rentals-table tr:hover td::before {
+    opacity: 1;
+}
+
+.rentals-table tr:nth-child(even) td {
+    background: #fafdff;
+}
+
+.rentals-table tr:nth-child(even):hover td {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+}
+
+/* 租赁记录状态徽章 */
+.rentals-table .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.rentals-table .status-active {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.rentals-table .status-completed {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+    color: white;
+}
+
+.rentals-table .status-cancelled {
+    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+    color: white;
+}
+
+.rentals-table .status-overdue {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: white;
+}
+
+.rentals-table .status-upcoming {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    color: white;
+}
+
+.rentals-table .status-unknown {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+    color: white;
+}
+
+/* 租赁记录操作按钮 */
+.rentals-table .btn-red {
+    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.rentals-table .btn-red:hover {
+    background: linear-gradient(135deg, #c82333 0%, #d91a7a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+}
+
+/* 租赁记录页面特殊样式 */
+#rentals-tab .search-bar {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+}
+
+#rentals-tab .search-header h3 {
+    color: #495057;
+    font-weight: 700;
+}
+
+#rentals-tab .search-actions .btn-primary {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+#rentals-tab .search-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #138496 0%, #1ba87e 100%);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+}
+
+/* 租赁记录页面响应式调整 */
+@media (max-width: 768px) {
+    .rentals-table-container {
+        margin-top: 1rem;
+        border-radius: 8px;
+    }
+    
+    .rentals-table th,
+    .rentals-table td {
+        padding: 12px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .rentals-table .btn-red {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+    
+    #rentals-tab .search-actions {
+        flex-direction: column;
+    }
+    
+    #rentals-tab .search-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .rentals-table th,
+    .rentals-table td {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .rentals-table .status-badge {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        min-width: 60px;
+    }
+    
+    .rentals-table .btn-red {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        margin-right: 2px;
+        margin-bottom: 2px;
+    }
+}
+
+/* 租赁记录样式 */
+.rental-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #667eea;
+}
+
+.rental-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.rental-camera {
+    font-weight: 600;
+    color: #333;
+}
+
+.rental-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.rental-dates {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.rental-customer {
+    color: #888;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .cameras-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-bar {
+        flex-direction: column;
+    }
+    
+    .search-bar input,
+    .search-bar button {
+        width: 100%;
+    }
+    
+    .calendar-day {
+        padding: 6px 2px;
+        min-height: 45px;
+        font-size: 0.8rem;
+    }
+    
+    .day-number {
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+    
+    .rental-event {
+        font-size: 0.6rem;
+        padding: 1px 3px;
+        margin: 0.5px 0;
+        line-height: 1.2;
+    }
+    
+    .weekday {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+    
+    .calendar-header {
+        padding: 0 0.5rem;
+    }
+    
+    .calendar-header h2 {
+        font-size: 1.1rem;
+    }
+    
+    .camera-filter {
+        padding: 0 0.5rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .camera-filter label {
+        font-size: 0.8rem;
+    }
+    
+    .customer-options {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .customer-options select,
+    .customer-options button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .tab-btn {
+        font-size: 0.75rem;
+        padding: 6px 8px;
+    }
+    
+    .modal-content {
+        margin: 0.5rem;
+        padding: 1rem;
+        max-height: 95vh;
+    }
+    
+    .calendar {
+        min-width: 300px;
+    }
+    
+    .calendar-day {
+        min-height: 40px;
+        padding: 4px 1px;
+    }
+    
+    .rental-event {
+        font-size: 0.55rem;
+        padding: 0 2px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+    .calendar {
+        min-width: 280px;
+    }
+    
+    .calendar-day {
+        min-height: 35px;
+        font-size: 0.75rem;
+    }
+    
+    .day-number {
+        font-size: 0.8rem;
+    }
+    
+    .rental-event {
+        font-size: 0.5rem;
+        line-height: 1.1;
+    }
+    
+    .weekday {
+        font-size: 0.75rem;
+        padding: 6px 2px;
+    }
+}
+
+/* 加载状态 */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.loading::after {
+    content: '...';
+    animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60% { content: '...'; }
+    80%, 100% { content: ''; }
+}
+
+/* 错误状态 */
+.error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+/* 登录界面样式 */
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1rem;
+}
+
+.login-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.login-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.login-form .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.login-form .form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.login-form .form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.login-form button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 1rem;
+}
+
+.login-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.login-info {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.login-info p {
+    margin: 0.25rem 0;
+}
+
+.login-info p:first-child {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+/* 头部用户信息样式 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255,255,255,0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+#current-user {
+    font-weight: 600;
+}
+
+#change-password-btn {
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#change-password-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+#change-password-btn:hover {
+    background: linear-gradient(135deg, #1ba87e 0%, #138496 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+}
+
+#change-password-btn:hover::before {
+    left: 100%;
+}
+
+#logout-btn {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+#logout-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .header-left {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .nav-tabs {
+        width: 100%;
+    }
+    
+    .user-info {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .login-form {
+        padding: 1.5rem;
+    }
+}
+
+/* 用户管理页面样式 - 完全不同的设计 */
+.users-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 16px;
+    border: 2px solid #e3f2fd;
+    background: linear-gradient(135deg, #f8fdff 0%, #f0f8ff 100%);
+    box-shadow: 0 4px 20px rgba(30, 136, 229, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.users-table-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1e88e5, #00bcd4, #1e88e5);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { background-position: -200% 0; }
+    50% { background-position: 200% 0; }
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+    min-width: 600px;
+    background: transparent;
+}
+
+.users-table th {
+    background: linear-gradient(135deg, #1e88e5 0%, #00bcd4 100%);
+    color: white;
+    padding: 20px 24px;
+    text-align: left;
+    font-weight: 700;
+    border: none;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.users-table th:first-child {
+    border-top-left-radius: 14px;
+}
+
+.users-table th:last-child {
+    border-top-right-radius: 14px;
+}
+
+.users-table th::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.users-table th:hover::before {
+    transform: translateX(100%);
+}
+
+.users-table td {
+    padding: 18px 24px;
+    border-bottom: 1px solid #e1f5fe;
+    vertical-align: middle;
+    color: #37474f;
+    background: white;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.users-table td::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #1e88e5, #00bcd4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.users-table tr:first-child td:first-child {
+    border-top-left-radius: 14px;
+}
+
+.users-table tr:first-child td:last-child {
+    border-top-right-radius: 14px;
+}
+
+.users-table tr:last-child td {
+    border-bottom: none;
+}
+
+.users-table tr:last-child td:first-child {
+    border-bottom-left-radius: 14px;
+}
+
+.users-table tr:last-child td:last-child {
+    border-bottom-right-radius: 14px;
+}
+
+.users-table tr:hover td {
+    background: linear-gradient(135deg, #f3f9ff 0%, #e8f4fd 100%);
+    transform: translateX(8px);
+    box-shadow: -8px 0 0 rgba(30, 136, 229, 0.1);
+}
+
+.users-table tr:hover td::before {
+    opacity: 1;
+}
+
+.users-table tr:nth-child(even) td {
+    background: #fafdff;
+}
+
+.users-table tr:nth-child(even):hover td {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+}
+
+/* 用户管理状态徽章 */
+.users-table .status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.users-table .status-active {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.users-table .status-completed {
+    background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+    color: white;
+}
+
+/* 用户管理操作按钮 */
+.users-table .btn-blue {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
+    margin-right: 8px;
+}
+
+.users-table .btn-blue:hover {
+    background: linear-gradient(135deg, #138496 0%, #1ba87e 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.4);
+}
+
+.users-table .btn-red {
+    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.users-table .btn-red:hover {
+    background: linear-gradient(135deg, #c82333 0%, #d91a7a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+}
+
+/* 用户管理页面特殊样式 */
+#users-tab .search-bar {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+}
+
+#users-tab .search-header h3 {
+    color: #495057;
+    font-weight: 700;
+}
+
+#users-tab .search-actions .btn-primary {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+#users-tab .search-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #138496 0%, #1ba87e 100%);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+}
+
+/* 用户管理模态框样式 */
+#add-user-modal .modal-content,
+#edit-user-modal .modal-content {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 1px solid #dee2e6;
+}
+
+#add-user-modal h3,
+#edit-user-modal h3 {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    color: white;
+    margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+    padding: 1.5rem;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* 用户管理表单样式 */
+#add-user-form .form-group input,
+#edit-user-form .form-group input,
+#add-user-form .form-group select,
+#edit-user-form .form-group select {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+#add-user-form .form-group input:focus,
+#edit-user-form .form-group input:focus,
+#add-user-form .form-group select:focus,
+#edit-user-form .form-group select:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+    background: white;
+}
+
+/* 用户管理表单按钮样式 */
+#add-user-form .form-actions .btn-primary,
+#edit-user-form .form-actions .btn-primary {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+#add-user-form .form-actions .btn-primary:hover,
+#edit-user-form .form-actions .btn-primary:hover {
+    background: linear-gradient(135deg, #138496 0%, #1ba87e 100%);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+}
+
+/* 用户管理页面响应式调整 */
+@media (max-width: 768px) {
+    .users-table-container {
+        margin-top: 1rem;
+        border-radius: 8px;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 12px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .users-table .btn-blue,
+    .users-table .btn-red {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+    
+    #users-tab .search-actions {
+        flex-direction: column;
+    }
+    
+    #users-tab .search-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .users-table th,
+    .users-table td {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .users-table .status-badge {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        min-width: 60px;
+    }
+    
+    .users-table .btn-blue,
+    .users-table .btn-red {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        margin-right: 2px;
+        margin-bottom: 2px;
+    }
+}

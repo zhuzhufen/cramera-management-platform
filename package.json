@@ -1,0 +1,30 @@
+{
+  "name": "camera-rental-platform",
+  "version": "1.0.0",
+  "description": "移动端相机租赁管理平台",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "setup-db": "node setup-database.js",
+    "setup": "npm run setup-db && npm start"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "camera",
+    "rental",
+    "management"
+  ],
+  "author": "独立开发者",
+  "license": "MIT"
+}
