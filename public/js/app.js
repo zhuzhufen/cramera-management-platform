@@ -109,15 +109,15 @@ function showApp() {
     // 根据屏幕尺寸设置筛选区域默认状态
     initializeFiltersState();
     
-// 加载数据
-showLoading('正在加载数据...');
-Promise.all([
-    loadCameras(),
-    loadCalendar(),
-    loadRentals()
-]).finally(() => {
-    hideLoading();
-});
+    // 加载数据
+    showLoading('正在加载数据...');
+    Promise.all([
+        loadCameras(),
+        loadCalendar(),
+        loadRentals()
+    ]).finally(() => {
+        hideLoading();
+    });
 }
 
 // 根据用户角色调整界面
