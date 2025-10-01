@@ -1,80 +1,61 @@
 # 相机租赁管理平台
 
-一个专为独立开发者设计的移动端相机租赁管理平台，通过相机编码进行管理，支持租赁状态查询和租赁日历显示。
+一个基于Node.js和PostgreSQL的移动端相机租赁管理系统，支持多用户权限管理和租赁日历功能。
+
+## 项目简介
+
+相机租赁管理平台是一个专为相机租赁业务设计的Web应用，提供完整的相机管理、租赁管理、用户管理和日历视图功能。系统支持管理员和代理人两种角色，具有完善的权限控制机制。
 
 ## 功能特性
 
-- 📱 **移动端优化** - 响应式设计，完美适配手机和平板
-- 📷 **相机管理** - 通过相机编码进行相机信息管理
-- 🔍 **智能搜索** - 根据相机编码快速搜索相机
-- 📅 **租赁日历** - 可视化显示相机的租赁时间安排
-- 📊 **状态管理** - 实时更新相机租赁状态（可租赁、已租赁、维护中、已预订）
-- 👥 **客户管理** - 客户信息记录和管理
-- 💰 **自动计费** - 根据租赁天数自动计算租赁费用
-- 🐳 **Docker支持** - 支持容器化部署，自定义数据库配置
+### 🔧 核心功能
+- **相机管理**: 添加、编辑、删除相机信息，支持相机状态管理
+- **租赁管理**: 创建租赁记录，检查时间冲突，管理租赁状态
+- **日历视图**: 可视化展示相机租赁日历，支持按月份和相机筛选
+- **用户管理**: 多用户系统，支持管理员和代理人角色
+- **权限控制**: 基于JWT的认证授权，不同角色拥有不同权限
+
+### 🎯 特色功能
+- **移动端优化**: 响应式设计，完美适配移动设备
+- **时间冲突检测**: 智能检查租赁时间冲突，避免重复租赁
+- **动态状态管理**: 根据租赁时间动态更新相机可用状态
+- **搜索筛选**: 支持按相机编码、代理人、客户姓名等多维度搜索
+- **数据统计**: 提供租赁记录统计和活跃租赁数量显示
 
 ## 技术栈
 
-- **前端**: HTML5, CSS3, JavaScript (原生)
-- **后端**: Node.js + Express
-- **数据库**: PostgreSQL
-- **样式**: 移动端优先的响应式设计
-- **部署**: Docker + Docker Compose
+### 后端
+- **Node.js** - 运行时环境
+- **Express.js** - Web框架
+- **PostgreSQL** - 数据库
+- **JWT** - 身份认证
+- **bcrypt** - 密码加密
+- **CORS** - 跨域支持
+
+### 前端
+- **HTML5/CSS3** - 页面结构及样式
+- **JavaScript (ES6+)** - 客户端逻辑
+- **Bootstrap** - UI框架
+- **jQuery** - DOM操作
+- **Bootstrap Datepicker** - 日期选择组件
+
+### 部署
+- **Docker** - 容器化部署
+- **Docker Compose** - 服务编排
 
 ## 快速开始
 
-### 方式一：Docker部署（推荐）
-
-#### 环境要求
-- Docker
-- Docker Compose
-
-#### 一键启动
-```bash
-# 使用启动脚本（推荐）
-chmod +x start-docker.sh
-./start-docker.sh
-
-# 或手动启动
-docker-compose up -d
-```
-
-#### 自定义配置
-1. 复制环境配置文件：
-   ```bash
-   cp .env.example .env
-   ```
-
-2. 修改 `.env` 文件中的数据库配置：
-   ```env
-   # 数据库配置
-   DB_HOST=127.0.0.1
-   DB_PORT=5432
-   DB_NAME=camera_rental_management
-   DB_USER=postgres
-   DB_PASSWORD=your_password
-   ```
-
-3. 重新启动服务：
-   ```bash
-   docker-compose up -d
-   ```
-
-#### 访问应用
-打开浏览器访问: http://localhost:3000/cam
-
-### 方式二：传统部署
-
-#### 环境要求
+### 环境要求
 - Node.js 14+
 - PostgreSQL 12+
+- 或使用Docker环境
 
-#### 安装步骤
+### 安装步骤
 
 1. **克隆项目**
    ```bash
    git clone <repository-url>
-   cd data_platform
+   cd camera-rental-platform
    ```
 
 2. **安装依赖**
@@ -82,149 +63,197 @@ docker-compose up -d
    npm install
    ```
 
-3. **设置数据库**
+3. **配置数据库**
+   - 创建PostgreSQL数据库 `camera_rental_management`
+   - 执行数据库初始化脚本：
    ```bash
-   npm run setup-db
+   psql -d camera_rental_management -f database/migrations/init.sql
    ```
 
-4. **启动应用**
+4. **配置环境变量**
+   复制 `.env.example` 为 `.env` 并修改数据库连接配置：
+   ```env
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_NAME=camera_rental_management
+   DB_USER=postgres
+   DB_PASSWORD=123456
+   ```
+
+5. **启动应用**
    ```bash
+   # 开发模式
+   npm run dev
+   
+   # 生产模式
    npm start
    ```
 
-5. **访问应用**
-   打开浏览器访问: http://localhost:3000/cam
+6. **访问应用**
+   打开浏览器访问 `http://localhost:3000/cam`
 
-### 一键启动（传统部署）
-```bash
-npm run setup
-```
+### Docker部署
 
-## 默认数据
+1. **构建镜像**
+   ```bash
+   docker build -t camera-rental-platform .
+   ```
 
-系统包含完整的示例数据：
-- 5台相机（Canon、Sony、Nikon等品牌）
-- 3位客户信息
-- 3条租赁记录
+2. **启动服务**
+   ```bash
+   docker-compose up -d
+   ```
 
-## Docker管理命令
+## 数据库结构
 
-```bash
-# 启动服务
-docker-compose up -d
+### 主要数据表
 
-# 停止服务
-docker-compose down
+#### users (用户表)
+- `id` - 主键
+- `username` - 用户名
+- `password` - 加密密码
+- `role` - 角色 (admin/agent)
+- `agent_name` - 代理人姓名
+- `created_at` - 创建时间
+- `updated_at` - 更新时间
 
-# 查看日志
-docker-compose logs -f
+#### cameras (相机表)
+- `id` - 主键
+- `camera_code` - 相机编码
+- `brand` - 品牌
+- `model` - 型号
+- `serial_number` - 序列号
+- `agent` - 代理人
+- `status` - 状态 (available/unavailable)
+- `description` - 描述
+- `created_at` - 创建时间
+- `updated_at` - 更新时间
 
-# 重启服务
-docker-compose restart
+#### rentals (租赁记录表)
+- `id` - 主键
+- `camera_id` - 相机ID
+- `customer_name` - 客户姓名
+- `customer_phone` - 客户手机号
+- `rental_date` - 租赁开始日期
+- `return_date` - 租赁结束日期
+- `actual_return_date` - 实际归还日期
+- `status` - 状态 (active/completed/cancelled/overdue)
+- `created_at` - 创建时间
+- `updated_at` - 更新时间
 
-# 查看服务状态
-docker-compose ps
+## API接口
 
-# 重新构建镜像
-docker-compose build
-```
+### 认证相关
+- `POST /cam/api/auth/login` - 用户登录
+- `GET /cam/api/auth/me` - 获取当前用户信息
+- `POST /cam/api/auth/change-password` - 修改密码
+
+### 相机管理
+- `GET /cam/api/cameras` - 获取相机列表
+- `GET /cam/api/cameras/search` - 搜索相机
+- `GET /cam/api/cameras/:id` - 获取相机详情
+- `POST /cam/api/cameras` - 添加相机
+- `PUT /cam/api/cameras/:id` - 更新相机信息
+- `PUT /cam/api/cameras/:id/status` - 更新相机状态
+- `DELETE /cam/api/cameras/:id` - 删除相机
+
+### 租赁管理
+- `GET /cam/api/rentals` - 获取租赁记录
+- `GET /cam/api/rentals/calendar` - 获取租赁日历数据
+- `GET /cam/api/rentals/check-conflict` - 检查时间冲突
+- `POST /cam/api/rentals` - 创建租赁记录
+- `DELETE /cam/api/rentals/:id` - 删除租赁记录
+
+### 用户管理
+- `GET /cam/api/users` - 获取用户列表
+- `GET /cam/api/users/:id` - 获取用户详情
+- `POST /cam/api/users` - 添加用户
+- `PUT /cam/api/users/:id` - 更新用户信息
+- `DELETE /cam/api/users/:id` - 删除用户
+
+## 权限说明
+
+### 管理员权限
+- 管理所有相机和租赁记录
+- 管理所有用户账户
+- 查看系统所有数据
+
+### 代理人权限
+- 只能管理自己名下的相机
+- 只能查看自己相机的租赁记录
+- 无法管理其他用户
+
+## 默认账户
+
+系统预置一个管理员账户：
+- **用户名**: admin
+- **密码**: admin123
+- **角色**: 管理员
 
 ## 项目结构
 
 ```
 camera-rental-platform/
-├── Dockerfile             # Docker镜像构建文件
-├── docker-compose.yml     # Docker Compose配置
-├── .env.example           # 环境变量示例
-├── start-docker.sh        # Docker启动脚本
-├── package.json           # 项目依赖配置
-├── server.js              # 后端服务器
-├── database/
-│   └── init.sql           # 数据库初始化脚本
-├── public/
-│   ├── index.html         # 主页面
-│   ├── styles.css         # 样式文件
-│   ├── app.js             # 前端JavaScript
-│   └── config.js          # 全局配置
-└── README.md              # 项目说明
+├── database/                 # 数据库相关
+│   └── migrations/          # 数据库迁移脚本
+├── public/                  # 前端静态文件
+│   ├── css/                # 样式文件
+│   ├── js/                 # JavaScript文件
+│   ├── lib/                # 第三方库
+│   └── *.html              # 页面文件
+├── server.js               # 服务器主文件
+├── package.json            # 项目配置
+├── Dockerfile              # Docker构建文件
+├── docker-compose.yml      # Docker编排文件
+└── README.md               # 项目说明
 ```
 
-## API接口
+## 开发指南
 
-### 相机管理
-- `GET /cam/api/cameras` - 获取所有相机
-- `GET /cam/api/cameras/search?code={code}` - 搜索相机
-- `GET /cam/api/cameras/:id` - 获取相机详情
-- `POST /cam/api/cameras` - 添加新相机
-- `PUT /cam/api/cameras/:id/status` - 更新相机状态
+### 添加新功能
+1. 在 `server.js` 中添加新的API路由
+2. 在前端对应页面中添加交互逻辑
+3. 如有需要，更新数据库结构
+4. 测试功能完整性
 
-### 租赁管理
-- `GET /cam/api/rentals/calendar?month={month}&year={year}` - 获取租赁日历数据
-- `POST /cam/api/rentals` - 创建租赁记录
-- `GET /cam/api/rentals/check-conflict` - 检查时间冲突
+### 数据库迁移
+数据库迁移脚本位于 `database/migrations/` 目录，按时间顺序执行：
+1. `init.sql` - 初始数据库结构
+2. `update_rentals_table.sql` - 租赁表更新
 
-### 客户管理
-- `GET /cam/api/customers` - 获取所有客户
-- `POST /cam/api/customers` - 添加新客户
+## 故障排除
 
-## 使用说明
+### 常见问题
 
-### 相机管理
-1. 在"相机管理"标签页查看所有相机
-2. 使用搜索框根据相机编码搜索特定相机
-3. 点击"添加相机"按钮添加新相机
-4. 点击相机卡片上的"详情"查看完整信息
-5. 对于可租赁的相机，点击"租赁"按钮创建租赁记录
+1. **数据库连接失败**
+   - 检查PostgreSQL服务是否运行
+   - 验证数据库连接配置
+   - 确认数据库用户权限
 
-### 租赁日历
-1. 在"租赁日历"标签页查看月度租赁安排
-2. 使用左右箭头切换月份
-3. 选择特定相机查看其租赁情况
-4. 每个日期显示当天租赁的相机编码和客户姓名
-5. 颜色区分：空闲显示绿色，租赁显示黄色
+2. **JWT认证失败**
+   - 检查请求头中的Authorization字段
+   - 验证JWT令牌是否过期
+   - 确认JWT密钥配置
 
-### 租赁记录
-1. 在"租赁记录"标签页查看所有租赁历史
-2. 显示相机信息、客户信息、租赁日期和状态
+3. **时间冲突检测异常**
+   - 检查日期格式是否正确
+   - 验证租赁时间段逻辑
+   - 确认数据库时区设置
 
-## 相机状态说明
+## 贡献指南
 
-- **可租赁**: 相机可用，可以创建新的租赁
-- **已租赁**: 相机正在租赁中
-- **维护中**: 相机正在进行维护，不可租赁
-- **已预订**: 相机已被预订
-
-## 租赁状态说明
-
-- **进行中**: 租赁正在进行
-- **已完成**: 租赁已完成
-- **已取消**: 租赁已取消
-- **逾期**: 租赁已逾期
-
-## 环境变量配置
-
-通过环境变量可以自定义数据库配置：
-
-```env
-# 数据库配置
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_NAME=camera_rental_management
-DB_USER=postgres
-DB_PASSWORD=your_password
-
-# 应用配置
-NODE_ENV=production
-```
-
-## 注意事项
-
-1. Docker部署会自动创建数据库和初始化数据
-2. 数据库数据会持久化存储在Docker卷中
-3. 应用默认使用3000端口
-4. 数据库默认使用5432端口
-5. 如需修改端口，请更新docker-compose.yml文件
+欢迎提交Issue和Pull Request来改进项目。
 
 ## 许可证
 
 MIT License
+
+## 联系方式
+
+如有问题或建议，请通过以下方式联系：
+- 提交GitHub Issue
+- 发送邮件至项目维护者
+
+---
+
+**注意**: 生产环境部署时请务必修改默认密码和JWT密钥，确保系统安全。
