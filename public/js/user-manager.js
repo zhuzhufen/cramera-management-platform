@@ -105,7 +105,7 @@ async function addUser(event) {
     const formData = new FormData(event.target);
     const userData = {
         username: formData.get('username'),
-        password: encryptPassword(formData.get('password')),
+        password: formData.get('password'),
         agent_name: formData.get('agent_name'),
         role: formData.get('role'),
         status: formData.get('status')
@@ -178,7 +178,7 @@ async function editUser(event) {
     // 如果有新密码，则更新密码
     const newPassword = formData.get('password');
     if (newPassword) {
-        userData.password = encryptPassword(newPassword);
+        userData.password = newPassword;
     }
 
     try {

@@ -810,7 +810,7 @@ app.delete('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, 
         
         const hasActiveRentals = parseInt(activeRentalsCheck.rows[0].active_count) > 0;
         if (hasActiveRentals) {
-            return res.status(400).json({ error: '该相机有活跃的租赁记录，无法删除' });
+            return res.status(400).json({ error: '该相机有租赁记录，无法删除' });
         }
         
         // 删除相机

@@ -225,11 +225,11 @@
                         </div>
                         <div class="filter-group">
                             <label>租赁开始:</label>
-                            <input type="date" id="rental-date" name="rental_date" placeholder="年/月/日">
+                            <input type="date" id="rental-date" name="rental_date" placeholder="年/月/日" min="1900-01-01">
                         </div>
                         <div class="filter-group">
                             <label>租赁结束:</label>
-                            <input type="date" id="return-date" name="return_date" placeholder="年/月/日">
+                            <input type="date" id="return-date" name="return_date" placeholder="年/月/日" min="1900-01-01">
                         </div>
                     </div>
                     <div class="search-actions">
@@ -306,11 +306,11 @@
                         </div>
                         <div class="filter-group">
                             <label>租赁开始:</label>
-                            <input type="date" id="rentals-start-date" placeholder="年/月/日">
+                            <input type="date" id="rentals-start-date" placeholder="年/月/日" min="1900-01-01">
                         </div>
                         <div class="filter-group">
                             <label>租赁结束:</label>
-                            <input type="date" id="rentals-end-date" placeholder="年/月/日">
+                            <input type="date" id="rentals-end-date" placeholder="年/月/日" min="1900-01-01">
                         </div>
                         <div class="filter-group">
                             <label>状态:</label>
@@ -503,11 +503,11 @@
                 </div>
                 <div class="form-group">
                     <label>租赁日期:</label>
-                    <input type="date" name="rental_date" required>
+                    <input type="date" name="rental_date" required min="1900-01-01">
                 </div>
                 <div class="form-group">
                     <label>归还日期:</label>
-                    <input type="date" name="return_date" required>
+                    <input type="date" name="return_date" required min="1900-01-01">
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('create-rental-modal')">取消</button>
@@ -670,8 +670,7 @@
                 format: 'yyyy-mm-dd',
                 language: 'zh-CN',
                 autoclose: true,
-                todayHighlight: true,
-                startDate: new Date()
+                todayHighlight: true
             });
         });
     </script>
