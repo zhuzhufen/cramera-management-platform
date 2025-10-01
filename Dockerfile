@@ -1,5 +1,5 @@
-# 使用官方 Node.js 运行时作为基础镜像
-FROM node:18-alpine
+# 使用官方 Node.js 运行时作为基础镜像 (强制使用x86架构)
+FROM --platform=linux/amd64 node:18-alpine
 
 # 设置工作目录
 WORKDIR /app
