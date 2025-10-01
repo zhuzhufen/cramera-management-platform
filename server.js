@@ -208,7 +208,6 @@ app.get('/cam/api/rentals/calendar', async (req, res) => {
         const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
         const endDate = new Date(year, month, 0).toISOString().split('T')[0]; // 月份的最后一天
         
-        console.log(`日历查询: 月份=${month}, 年份=${year}, 开始日期=${startDate}, 结束日期=${endDate}`);
         
         let query = `
             SELECT 
@@ -793,6 +792,42 @@ app.delete('/cam/api/rentals/:id', authenticateToken, requireAdmin, async (req, 
     } catch (err) {
         console.error('删除租赁记录失败:', err);
         res.status(500).json({ error: '删除租赁记录失败' });
+    }
+});
+
+// 删除相机（需要管理员权限）
+app.delete('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // 检查相机是否存在
+        const cameraCheck = await pool.query('SELECT * FROM cameras WHERE id = $1', [id]);
+        if (cameraCheck.rows.length === 0) {
+            return res.status(404).json({ error: '相机未找到' });
+        }
+        
+        // 检查相机是否有活跃的租赁记录
+        const activeRentalsCheck = await pool.query(`
+            SELECT COUNT(*) as active_count 
+            FROM rentals 
+            WHERE camera_id = $1 AND status IN ('active', 'reserved')
+        `, [id]);
+        
+        const hasActiveRentals = parseInt(activeRentalsCheck.rows[0].active_count) > 0;
+        if (hasActiveRentals) {
+            return res.status(400).json({ error: '该相机有活跃的租赁记录，无法删除' });
+        }
+        
+        // 删除相机
+        const result = await pool.query('DELETE FROM cameras WHERE id = $1 RETURNING *', [id]);
+        
+        res.json({ 
+            message: '相机删除成功',
+            deletedCamera: result.rows[0]
+        });
+    } catch (err) {
+        console.error('删除相机失败:', err);
+        res.status(500).json({ error: '删除相机失败' });
     }
 });
 

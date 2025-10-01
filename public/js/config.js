@@ -9,7 +9,8 @@ const CONFIG = {
         SEARCH: '/cameras/search',
         DETAIL: '/cameras/:id',
         CREATE: '/cameras',
-        UPDATE_STATUS: '/cameras/:id/status'
+        UPDATE_STATUS: '/cameras/:id/status',
+        DELETE: '/cameras/:id'
     },
     
     // 客户相关API路径
