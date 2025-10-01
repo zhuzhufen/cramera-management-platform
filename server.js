@@ -245,12 +245,7 @@ app.get('/cam/api/rentals/calendar', async (req, res) => {
         
         query += ` ORDER BY r.rental_date`;
         
-        console.log('执行SQL:', query);
-        console.log('参数:', params);
-        
         const result = await pool.query(query, params);
-        
-        console.log('查询结果:', result.rows.length, '条记录');
         
         // 手动处理日期格式，避免时区转换问题
         const processedRentals = result.rows.map(rental => {

@@ -12,7 +12,6 @@ async function loadRentals() {
         const rentals = await response.json();
         renderRentalsTable(rentals);
     } catch (error) {
-        console.error('加载租赁记录失败:', error);
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = `<tr><td colspan="9" class="error">加载租赁记录失败: ${error.message}</td></tr>`;
     }
@@ -85,21 +84,16 @@ async function searchRentals() {
 
         let rentals = await response.json();
         
-        console.log('原始租赁记录:', rentals); // 调试信息
-        
         // 客户端状态筛选（因为后端接口没有状态筛选）
         if (statusValue) {
             rentals = rentals.filter(rental => {
                 const currentStatus = calculateRentalStatus(rental);
-                console.log(`租赁 ${rental.id} 状态: ${currentStatus}, 筛选条件: ${statusValue}`); // 调试信息
                 return currentStatus === statusValue;
             });
         }
 
-        console.log('筛选后租赁记录:', rentals); // 调试信息
         renderRentalsTable(rentals);
     } catch (error) {
-        console.error('搜索租赁记录失败:', error);
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = `<tr><td colspan="9" class="error">搜索失败: ${error.message}</td></tr>`;
     }
@@ -157,36 +151,27 @@ async function deleteRental(rentalId) {
         loadCameras();
         
     } catch (error) {
-        console.error('删除租赁记录失败:', error);
         alert('删除租赁记录失败: ' + error.message);
     }
 }
 
 // 显示创建租赁模态框
 async function showCreateRentalModal(cameraId) {
-    console.log('showCreateRentalModal called with cameraId:', cameraId);
-    console.log('currentCameras before check:', currentCameras);
-    
     // 如果 currentCameras 未定义或为空，重新加载相机列表
     if (!currentCameras || currentCameras.length === 0) {
-        console.log('currentCameras is empty, reloading...');
         try {
             const response = await fetch(CONFIG.buildUrl(CONFIG.CAMERA.LIST));
             if (!response.ok) throw new Error('加载相机列表失败');
             currentCameras = await response.json();
-            console.log('Reloaded currentCameras:', currentCameras);
         } catch (error) {
-            console.error('加载相机列表失败:', error);
             alert('相机信息加载失败: ' + error.message);
             return;
         }
     }
     
     selectedCameraForRental = currentCameras.find(c => c.id == cameraId);
-    console.log('Found camera:', selectedCameraForRental);
     
     if (!selectedCameraForRental) {
-        console.error('Camera not found in currentCameras. Available cameras:', currentCameras.map(c => ({ id: c.id, camera_code: c.camera_code })));
         alert('相机信息加载失败');
         return;
     }
@@ -220,7 +205,6 @@ async function showCreateRentalModal(cameraId) {
 
         showModal('create-rental-modal');
     } catch (error) {
-        console.error('加载客户列表失败:', error);
         alert('加载客户列表失败: ' + error.message);
     }
 }
@@ -246,7 +230,6 @@ async function checkRentalConflict() {
         const result = await response.json();
         return result.hasConflict;
     } catch (error) {
-        console.error('检查时间冲突失败:', error);
         return false;
     }
 }
@@ -313,7 +296,6 @@ async function createRental(event) {
             const newCustomer = await customerResponse.json();
             customerId = newCustomer.id;
         } catch (error) {
-            console.error('创建客户失败:', error);
             alert('创建客户失败: ' + error.message);
             return;
         }
@@ -357,7 +339,6 @@ async function createRental(event) {
         
         alert('租赁创建成功！');
     } catch (error) {
-        console.error('创建租赁失败:', error);
         alert('创建租赁失败: ' + error.message);
     }
 }

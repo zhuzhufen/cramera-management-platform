@@ -13,10 +13,6 @@ async function updateUsers() {
         // 删除现有用户
         await pool.query('DELETE FROM users');
         
-        // 插入新用户数据
-        // 注意：这里不再插入测试账号，请根据需要添加实际用户数据
-        console.log('用户数据已清空，请根据需要添加实际用户数据');
-        
         console.log('用户数据更新成功！');
     } catch (error) {
         console.error('更新用户数据失败:', error);

@@ -15,21 +15,15 @@ async function setupDatabase() {
     const client = new Client(config);
     
     try {
-        console.log('正在连接到PostgreSQL...');
         await client.connect();
         
         // 检查数据库是否存在
-        console.log('检查数据库是否存在...');
         const dbCheck = await client.query(`
             SELECT 1 FROM pg_database WHERE datname = 'camera_rental_management'
         `);
         
         if (dbCheck.rows.length === 0) {
-            console.log('创建数据库 camera_rental_management...');
             await client.query('CREATE DATABASE camera_rental_management');
-            console.log('数据库创建成功！');
-        } else {
-            console.log('数据库已存在，跳过创建');
         }
         
         await client.end();
@@ -41,7 +35,6 @@ async function setupDatabase() {
         });
         
         await dbClient.connect();
-        console.log('连接到 camera_rental_management 数据库...');
         
         // 读取并执行初始化SQL
         const sqlPath = path.join(__dirname, 'database', 'init.sql');
@@ -65,19 +58,11 @@ async function setupDatabase() {
         }
         
         console.log('数据库初始化完成！');
-        console.log('示例数据已插入：');
-        console.log('- 5台相机');
-        console.log('- 3个客户');
-        console.log('- 3条租赁记录');
         
         await dbClient.end();
         
     } catch (error) {
         console.error('数据库设置失败:', error.message);
-        console.log('\n请确保：');
-        console.log('1. PostgreSQL服务正在运行');
-        console.log('2. 数据库连接信息正确');
-        console.log('3. 用户postgres有创建数据库的权限');
         process.exit(1);
     }
 }

@@ -12,7 +12,6 @@ async function loadUsers() {
         const users = await response.json();
         renderUsersTable(users);
     } catch (error) {
-        console.error('加载用户列表失败:', error);
         const tableBody = document.getElementById('users-table-body');
         tableBody.innerHTML = `<tr><td colspan="5" class="error">加载用户列表失败: ${error.message}</td></tr>`;
     }
@@ -71,7 +70,6 @@ async function searchUsers() {
         const users = await response.json();
         renderUsersTable(users);
     } catch (error) {
-        console.error('搜索用户失败:', error);
         const tableBody = document.getElementById('users-table-body');
         tableBody.innerHTML = `<tr><td colspan="5" class="error">搜索失败: ${error.message}</td></tr>`;
     }
@@ -134,7 +132,6 @@ async function addUser(event) {
         
         alert('用户添加成功！');
     } catch (error) {
-        console.error('添加用户失败:', error);
         alert('添加用户失败: ' + error.message);
     }
 }
@@ -157,7 +154,6 @@ async function editUserModal(userId) {
         
         showModal('edit-user-modal');
     } catch (error) {
-        console.error('获取用户信息失败:', error);
         alert('获取用户信息失败: ' + error.message);
     }
 }
@@ -206,7 +202,6 @@ async function editUser(event) {
         
         alert('用户修改成功！');
     } catch (error) {
-        console.error('修改用户失败:', error);
         alert('修改用户失败: ' + error.message);
     }
 }
@@ -234,7 +229,6 @@ async function deleteUser(userId) {
         loadUsers();
         
     } catch (error) {
-        console.error('删除用户失败:', error);
         alert('删除用户失败: ' + error.message);
     }
 }
@@ -259,7 +253,6 @@ async function updateAgentSelector() {
                 <option value="${agent}">${agent}</option>
             `).join('');
     } catch (error) {
-        console.error('更新代理人选择器失败:', error);
         // 如果失败，保持当前的选择器状态
     }
 }

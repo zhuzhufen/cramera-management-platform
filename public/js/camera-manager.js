@@ -27,7 +27,6 @@ async function loadCameras() {
         currentCameras = cameras;
         renderCameras(cameras);
     } catch (error) {
-        console.error('加载相机失败:', error);
         document.getElementById('cameras-list').innerHTML = `
             <div class="error">加载相机失败: ${error.message}</div>
         `;
@@ -110,7 +109,6 @@ async function searchCameras() {
         const cameras = await response.json();
         renderCameras(cameras);
     } catch (error) {
-        console.error('搜索相机失败:', error);
         document.getElementById('cameras-list').innerHTML = `
             <div class="error">搜索失败: ${error.message}</div>
         `;
@@ -171,7 +169,6 @@ async function addCamera(event) {
         
         alert(editingId ? '相机修改成功！' : '相机添加成功！');
     } catch (error) {
-        console.error(editingId ? '修改相机失败:' : '添加相机失败:', error);
         alert((editingId ? '修改相机失败: ' : '添加相机失败: ') + error.message);
     }
 }
@@ -216,7 +213,6 @@ async function editCamera(cameraId) {
         
         showModal('add-camera-modal');
     } catch (error) {
-        console.error('获取相机信息失败:', error);
         alert('获取相机信息失败: ' + error.message);
     }
 }
@@ -276,7 +272,6 @@ async function updateAgentSelector() {
         });
         
     } catch (error) {
-        console.error('更新代理人选择器失败:', error);
         // 如果获取失败，至少显示当前用户的代理人名称
         const agentSelect = document.getElementById('agent-select');
         if (currentUser.role === 'agent' && currentUser.agent_name) {
@@ -309,7 +304,6 @@ async function deleteCamera(cameraId) {
         alert('相机删除成功！');
         loadCameras(); // 重新加载相机列表
     } catch (error) {
-        console.error('删除相机失败:', error);
         alert('删除相机失败: ' + error.message);
     }
 }

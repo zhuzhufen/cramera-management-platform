@@ -13,21 +13,12 @@ async function updateCameraStatus() {
     const client = new Client(config);
     
     try {
-        console.log('正在连接到PostgreSQL...');
         await client.connect();
         
         // 更新所有相机状态为 available
-        console.log('更新相机状态为 available...');
         const result = await client.query('UPDATE cameras SET status = $1', ['available']);
         
         console.log(`成功更新 ${result.rowCount} 台相机的状态`);
-        
-        // 验证更新结果
-        const checkResult = await client.query('SELECT camera_code, status FROM cameras');
-        console.log('\n当前相机状态:');
-        checkResult.rows.forEach(row => {
-            console.log(`${row.camera_code}: ${row.status}`);
-        });
         
         await client.end();
         

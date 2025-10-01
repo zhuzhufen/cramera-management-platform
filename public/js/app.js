@@ -40,7 +40,6 @@ async function initializeApp() {
         try {
             await checkAuth();
         } catch (error) {
-            console.error('认证检查失败:', error);
             logout();
         }
     } else {
@@ -278,7 +277,6 @@ async function login(event) {
         showApp();
         
     } catch (error) {
-        console.error('登录失败:', error);
         alert('登录失败: ' + error.message);
     }
 }
@@ -582,7 +580,6 @@ async function changePassword(event) {
         alert('密码修改成功！');
         
     } catch (error) {
-        console.error('修改密码失败:', error);
         alert('修改密码失败: ' + error.message);
     }
 }
