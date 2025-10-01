@@ -62,6 +62,10 @@ const pool = new Pool({
     database: process.env.DB_NAME || 'camera_rental_management',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || '123456',
+    // 设置时区为 Asia/Shanghai，避免日期转换问题
+    types: {
+        getTypeParser: () => (val) => val // 返回原始值，避免时区转换
+    }
 });
 
 // 测试数据库连接
@@ -249,7 +253,22 @@ app.get('/cam/api/rentals/calendar', async (req, res) => {
         
         console.log('查询结果:', result.rows.length, '条记录');
         
-        res.json(result.rows);
+        // 手动处理日期格式，避免时区转换问题
+        const processedRentals = result.rows.map(rental => {
+            // 如果日期是字符串格式，直接返回
+            if (typeof rental.rental_date === 'string') {
+                return rental;
+            }
+            
+            // 如果是Date对象，转换为本地日期字符串
+            return {
+                ...rental,
+                rental_date: rental.rental_date.toISOString().split('T')[0],
+                return_date: rental.return_date.toISOString().split('T')[0]
+            };
+        });
+        
+        res.json(processedRentals);
     } catch (err) {
         console.error('获取租赁日历失败:', err);
         res.status(500).json({ error: '获取租赁日历失败' });
