@@ -164,9 +164,29 @@ async function deleteRental(rentalId) {
 
 // 显示创建租赁模态框
 async function showCreateRentalModal(cameraId) {
-    selectedCameraForRental = currentCameras.find(c => c.id === cameraId);
+    console.log('showCreateRentalModal called with cameraId:', cameraId);
+    console.log('currentCameras before check:', currentCameras);
+    
+    // 如果 currentCameras 未定义或为空，重新加载相机列表
+    if (!currentCameras || currentCameras.length === 0) {
+        console.log('currentCameras is empty, reloading...');
+        try {
+            const response = await fetch(CONFIG.buildUrl(CONFIG.CAMERA.LIST));
+            if (!response.ok) throw new Error('加载相机列表失败');
+            currentCameras = await response.json();
+            console.log('Reloaded currentCameras:', currentCameras);
+        } catch (error) {
+            console.error('加载相机列表失败:', error);
+            alert('相机信息加载失败: ' + error.message);
+            return;
+        }
+    }
+    
+    selectedCameraForRental = currentCameras.find(c => c.id == cameraId);
+    console.log('Found camera:', selectedCameraForRental);
     
     if (!selectedCameraForRental) {
+        console.error('Camera not found in currentCameras. Available cameras:', currentCameras.map(c => ({ id: c.id, camera_code: c.camera_code })));
         alert('相机信息加载失败');
         return;
     }

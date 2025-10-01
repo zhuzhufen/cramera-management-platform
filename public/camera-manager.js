@@ -140,7 +140,7 @@ async function showCameraDetail(cameraId) {
                 <p><strong>代理人:</strong> ${camera.agent || '无'}</p>
                 <p><strong>描述:</strong> ${camera.description || '无'}</p>
             </div>
-            ${camera.rental_history ? `
+            ${camera.rental_history && Array.isArray(camera.rental_history) && camera.rental_history.length > 0 ? `
                 <div class="rental-history">
                     <h4>租赁历史</h4>
                     <div class="rental-table-container">
@@ -187,7 +187,7 @@ async function showCameraDetail(cameraId) {
                         </div>
                     ` : ''}
                 </div>
-            ` : ''}
+            ` : '<p>暂无租赁历史</p>'}
         `;
 
         showModal('camera-detail-modal');
