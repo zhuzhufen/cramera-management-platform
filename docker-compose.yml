@@ -10,6 +10,8 @@ services:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-123456}
       NODE_ENV: production
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-your_strong_encryption_key_here}
+      ENCRYPTION_SALT: ${ENCRYPTION_SALT:-your_strong_encryption_salt_here}
     ports:
       - "3000:3000"
     restart: unless-stopped
