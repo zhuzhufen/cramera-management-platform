@@ -1,0 +1,281 @@
+/* 日历样式 */
+.calendar-controls {
+    margin-bottom: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.calendar-header button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    min-width: 60px;
+}
+
+.camera-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+}
+
+.camera-filter label {
+    font-weight: 600;
+    color: #555;
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.camera-filter select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.9rem;
+}
+
+.calendar-container {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.calendar {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    min-width: 320px;
+    width: 100%;
+}
+
+/* 空闲日期样式 - 绿色 */
+.calendar-day {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #c3e6cb;
+}
+
+.calendar-day .day-number {
+    color: #155724;
+    font-weight: 600;
+}
+
+/* 租赁日期样式 - 黄色 */
+.calendar-day.rented {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border: 2px solid #ffc107;
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+.calendar-day.rented .day-number {
+    font-weight: 700;
+    color: #856404;
+}
+
+.calendar-day.rented .rental-event {
+    background: rgba(255, 255, 255, 0.9);
+    color: #856404;
+    font-weight: 600;
+    border: 1px solid #ffc107;
+}
+
+/* 进行中租赁日期样式 - 深黄色 */
+.calendar-day.active-rental {
+    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    color: #856404;
+    border: 2px solid #f39c12;
+    box-shadow: 0 2px 4px rgba(243, 156, 18, 0.3);
+}
+
+.calendar-day.active-rental .day-number {
+    font-weight: 700;
+    color: #856404;
+}
+
+.calendar-day.active-rental .rental-event {
+    background: rgba(255, 255, 255, 0.9);
+    color: #856404;
+    font-weight: 600;
+    border: 1px solid #f39c12;
+}
+
+/* 已完成租赁日期样式 - 浅黄色 */
+.calendar-day.completed-rental {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border: 2px solid #ffc107;
+}
+
+.calendar-day.completed-rental .day-number {
+    font-weight: 700;
+    color: #856404;
+}
+
+.calendar-day.completed-rental .rental-event {
+    background: rgba(255, 255, 255, 0.9);
+    color: #856404;
+    font-weight: 600;
+    border: 1px solid #ffc107;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.weekday {
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    padding: 12px 8px;
+    text-align: center;
+    border-right: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+    min-height: 60px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-day:nth-child(7n) {
+    border-right: none;
+}
+
+.calendar-day.empty {
+    background: #f8f9fa;
+    cursor: default;
+}
+
+.calendar-day:hover:not(.empty) {
+    background: #f8f9fa;
+}
+
+.day-number {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.rental-event {
+    background: #667eea;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    margin: 1px 0;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .calendar-day {
+        padding: 6px 2px;
+        min-height: 45px;
+        font-size: 0.8rem;
+    }
+    
+    .day-number {
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+    }
+    
+    .rental-event {
+        font-size: 0.6rem;
+        padding: 1px 3px;
+        margin: 0.5px 0;
+        line-height: 1.2;
+    }
+    
+    .weekday {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+    
+    .calendar-header {
+        padding: 0 0.5rem;
+    }
+    
+    .calendar-header h2 {
+        font-size: 1.1rem;
+    }
+    
+    .camera-filter {
+        padding: 0 0.5rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    
+    .camera-filter label {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar {
+        min-width: 300px;
+    }
+    
+    .calendar-day {
+        min-height: 40px;
+        padding: 4px 1px;
+    }
+    
+    .rental-event {
+        font-size: 0.55rem;
+        padding: 0 2px;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+    .calendar {
+        min-width: 280px;
+    }
+    
+    .calendar-day {
+        min-height: 35px;
+        font-size: 0.75rem;
+    }
+    
+    .day-number {
+        font-size: 0.8rem;
+    }
+    
+    .rental-event {
+        font-size: 0.5rem;
+        line-height: 1.1;
+    }
+    
+    .weekday {
+        font-size: 0.75rem;
+        padding: 6px 2px;
+    }
+}

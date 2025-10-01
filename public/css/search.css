@@ -1,0 +1,277 @@
+/* 搜索栏样式 */
+.search-bar {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+.search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.search-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1rem;
+    white-space: nowrap; /* 防止文字换行 */
+}
+
+.toggle-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+    background: #5a6268;
+}
+
+.search-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    height: 42px;
+    box-sizing: border-box;
+}
+
+.filter-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-group input::placeholder {
+    color: #adb5bd;
+}
+
+/* 日期输入框样式 */
+.filter-group input[type="date"] {
+    position: relative;
+    min-height: auto;
+}
+
+.filter-group input[type="date"]:not(:focus):invalid::before {
+    content: attr(placeholder);
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    pointer-events: none;
+    font-size: 0.9rem;
+}
+
+.filter-group input[type="date"]:focus::before {
+    display: none;
+}
+
+.filter-group input[type="date"]:valid::before {
+    display: none;
+}
+
+.search-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.search-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+/* 搜索按钮特殊样式 */
+#search-btn,
+#calendar-search-btn,
+#rentals-search-btn,
+#users-search-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#search-btn::before,
+#calendar-search-btn::before,
+#rentals-search-btn::before,
+#users-search-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+#search-btn:hover,
+#calendar-search-btn:hover,
+#rentals-search-btn:hover,
+#users-search-btn:hover {
+    background: linear-gradient(135deg, #20c997 0%, #1ba87e 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+#search-btn:hover::before,
+#calendar-search-btn:hover::before,
+#rentals-search-btn:hover::before,
+#users-search-btn:hover::before {
+    left: 100%;
+}
+
+#search-btn:active,
+#calendar-search-btn:active,
+#rentals-search-btn:active,
+#users-search-btn:active {
+    transform: translateY(-1px) scale(1);
+    box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* 添加按钮特殊样式 */
+#add-camera-btn,
+#add-user-btn {
+    background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(253, 126, 20, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#add-camera-btn::before,
+#add-user-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+#add-camera-btn:hover,
+#add-user-btn:hover {
+    background: linear-gradient(135deg, #e55a00 0%, #cc4b00 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(253, 126, 20, 0.4);
+}
+
+#add-camera-btn:hover::before,
+#add-user-btn:hover::before {
+    left: 100%;
+}
+
+#add-camera-btn:active,
+#add-user-btn:active {
+    transform: translateY(-1px) scale(1);
+    box-shadow: 0 3px 8px rgba(253, 126, 20, 0.3);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .search-filters {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        display: none; /* 移动端默认隐藏筛选区域 */
+    }
+    
+    .filter-group input {
+        height: 44px;
+        font-size: 16px; /* 防止iOS缩放 */
+    }
+    
+    /* 专门针对移动端日期输入框的调整 */
+    .filter-group input[type="date"] {
+        height: 44px;
+        font-size: 16px;
+        line-height: 1.5;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    
+    .search-actions {
+        justify-content: stretch;
+    }
+    
+    .search-actions button {
+        flex: 1;
+        min-width: auto;
+        height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar {
+        padding: 1rem;
+    }
+    
+    .search-actions {
+        flex-direction: column;
+    }
+    
+    .search-actions button {
+        width: 100%;
+    }
+}
