@@ -202,18 +202,56 @@ function showRentalsForDate(dateStr) {
             <h3>${formattedDate} 租赁记录</h3>
             <div class="rentals-list">
                 ${dayRentals.map(rental => {
-                    const agentCameraText = rental.agent ? `${rental.agent}-${rental.camera_code}` : rental.camera_code;
-                    const customerText = rental.customer_name ? `${rental.customer_name}-${rental.customer_phone || ''}` : '';
-                    const statusText = getRentalStatusText(rental.status);
+                    const currentStatus = calculateRentalStatus(rental);
+                    const statusText = getRentalStatusText(currentStatus);
+                    const rentalStart = formatDate(rental.rental_date);
+                    const rentalEnd = formatDate(rental.return_date);
                     
                     return `
                         <div class="rental-item" data-rental-id="${rental.id}">
-                            <div class="rental-info">
-                                <div class="rental-line">${agentCameraText}</div>
-                                <div class="rental-line">${customerText}</div>
-                                <div class="rental-status">${statusText}</div>
+                            <div class="rental-header">
+                                <div class="camera-info">
+                                    <span class="camera-icon">📷</span>
+                                    <div class="camera-details">
+                                        <div class="camera-code">${rental.camera_code}</div>
+                                        <div class="camera-model">${rental.brand} ${rental.model} ${rental.serial_number ? `(${rental.serial_number})` : ''}</div>
+                                    </div>
+                                </div>
+                                <div class="header-right">
+                                    ${rental.agent ? `
+                                    <div class="agent-info">
+                                        <span class="agent-icon">👨‍💼</span>
+                                        ${rental.agent}
+                                    </div>
+                                    ` : ''}
+                                    <div class="rental-status status-${currentStatus}">
+                                        ${statusText}
+                                    </div>
+                                </div>
                             </div>
-                            <button class="btn-view-detail" onclick="showRentalDetail(${rental.id})">查看详情</button>
+                            <div class="rental-body">
+                                <div class="customer-info">
+                                    <div class="customer-card">
+                                        <span class="customer-icon">👤</span>
+                                        <div class="customer-details">
+                                            <div class="customer-label">客户信息</div>
+                                            <div class="customer-values">${rental.customer_name}${rental.customer_phone ? ` - ${rental.customer_phone}` : ''}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="rental-dates">
+                                    <div class="date-range">
+                                        <span class="date-icon">📅</span>
+                                        <div class="date-info">
+                                            <div class="date-label">租赁期间</div>
+                                            <div class="date-values">${rentalStart} - ${rentalEnd}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rental-actions">
+                                <button class="btn-view-detail" onclick="showRentalDetail(${rental.id})">查看详情</button>
+                            </div>
                         </div>
                     `;
                 }).join('')}
