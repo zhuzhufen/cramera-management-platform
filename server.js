@@ -199,6 +199,44 @@ app.get('/cam/api/cameras/:id', async (req, res) => {
     }
 });
 
+// 更新相机信息
+app.put('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { camera_code, brand, model, serial_number, agent, status, description } = req.body;
+        
+        // 检查相机是否存在
+        const cameraCheck = await pool.query('SELECT * FROM cameras WHERE id = $1', [id]);
+        if (cameraCheck.rows.length === 0) {
+            return res.status(404).json({ error: '相机未找到' });
+        }
+        
+        // 检查相机编码是否重复（排除当前相机）
+        const codeCheck = await pool.query(
+            'SELECT id FROM cameras WHERE camera_code = $1 AND id != $2',
+            [camera_code, id]
+        );
+        
+        if (codeCheck.rows.length > 0) {
+            return res.status(400).json({ error: '相机编码已存在' });
+        }
+        
+        // 更新相机信息
+        const result = await pool.query(`
+            UPDATE cameras 
+            SET camera_code = $1, brand = $2, model = $3, serial_number = $4, 
+                agent = $5, status = $6, description = $7, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = $8 
+            RETURNING *
+        `, [camera_code, brand, model, serial_number, agent, status, description, id]);
+        
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('更新相机信息失败:', err);
+        res.status(500).json({ error: '更新相机信息失败' });
+    }
+});
+
 // 获取租赁日历数据
 app.get('/cam/api/rentals/calendar', async (req, res) => {
     try {
