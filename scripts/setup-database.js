@@ -37,7 +37,7 @@ async function setupDatabase() {
         await dbClient.connect();
         
         // 读取并执行初始化SQL
-        const sqlPath = path.join(__dirname, 'database', 'init.sql');
+        const sqlPath = path.join(__dirname, '..', 'database', 'migrations', 'init.sql');
         const sql = fs.readFileSync(sqlPath, 'utf8');
         
         // 分割SQL语句并执行

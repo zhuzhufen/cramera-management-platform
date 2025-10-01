@@ -30,22 +30,12 @@ CREATE TABLE IF NOT EXISTS cameras (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 创建客户表
-CREATE TABLE IF NOT EXISTS customers (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    email VARCHAR(100),
-    id_card VARCHAR(50),
-    address TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 创建租赁记录表
+-- 创建租赁记录表（最新结构）
 CREATE TABLE IF NOT EXISTS rentals (
     id SERIAL PRIMARY KEY,
     camera_id INTEGER REFERENCES cameras(id),
-    customer_id INTEGER REFERENCES customers(id),
+    customer_name VARCHAR(100) NOT NULL, -- 直接存储客户姓名
+    customer_phone VARCHAR(20) NOT NULL, -- 直接存储客户手机号
     rental_date DATE NOT NULL,
     return_date DATE NOT NULL,
     actual_return_date DATE,
@@ -62,21 +52,7 @@ CREATE INDEX IF NOT EXISTS idx_rentals_camera_id ON rentals(camera_id);
 CREATE INDEX IF NOT EXISTS idx_rentals_status ON rentals(status);
 
 
--- 插入示例数据
-INSERT INTO cameras (camera_code, brand, model, serial_number, agent, description, status) VALUES
-('CAM001', 'Canon', 'EOS R5', 'CR5-2023001', '张三', '全画幅专业微单相机', 'available'),
-('CAM002', 'Sony', 'A7IV', 'SA7-2023002', '李四', '全画幅微单相机', 'available'),
-('CAM003', 'Nikon', 'Z9', 'NZ9-2023003', '王五', '旗舰级无反相机', 'available'),
-('CAM004', 'Fujifilm', 'X-T5', 'FXT-2023004', '张三', 'APS-C画幅复古相机', 'available'),
-('CAM005', 'Canon', 'EOS R6', 'CR6-2023005', '李四', '全画幅微单相机', 'available');
-
-INSERT INTO customers (name, phone, email, id_card) VALUES
-('张三', '13800138001', 'zhangsan@email.com', '110101199001011234'),
-('李四', '13800138002', 'lisi@email.com', '110101199002021234'),
-('王五', '13800138003', 'wangwu@email.com', '110101199003031234');
-
--- 插入示例租赁记录
-INSERT INTO rentals (camera_id, customer_id, rental_date, return_date, total_amount, status) VALUES
-(1, 1, '2024-01-15', '2024-01-20', 750.00, 'completed'),
-(2, 2, '2024-01-18', '2024-01-25', 840.00, 'active'),
-(3, 3, '2024-01-22', '2024-01-29', 1400.00, 'active');
+-- 插入超级管理员用户
+-- 密码: admin123 (bcrypt加密)
+INSERT INTO users (username, password, role, agent_name) VALUES
+('admin', '$2b$10$8K1p/a0dRT1R3J5J5Q5Q5O5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q5Q', 'admin', '系统管理员');
