@@ -102,62 +102,110 @@ class CryptoUtils {
     // 简化的AES加密（从后端获取密钥）
     static async simpleEncrypt(password) {
         try {
-            // 从后端获取加密密钥
-            const response = await fetch(CONFIG.buildUrl('/auth/encryption-key'));
-            if (!response.ok) {
-                throw new Error('获取加密密钥失败');
+
+            // 尝试使用 Web Crypto API，如果失败则降级
+            try {
+                // 从后端获取加密密钥
+                const response = await fetch(CONFIG.buildUrl(CONFIG.AUTH.ENCRYPTION_KEY));
+                if (!response.ok) {
+                    throw new Error('获取加密密钥失败');
+                }
+                
+                const keyData = await response.json();
+                const encryptionKey = keyData.key;
+                const salt = keyData.salt;
+                
+                // 生成密钥
+                const encoder = new TextEncoder();
+                const keyMaterial = await window.crypto.subtle.importKey(
+                    "raw",
+                    encoder.encode(encryptionKey),
+                    { name: "PBKDF2" },
+                    false,
+                    ["deriveKey"]
+                );
+
+                const key = await window.crypto.subtle.deriveKey(
+                    {
+                        name: "PBKDF2",
+                        salt: encoder.encode(salt),
+                        iterations: 100000,
+                        hash: "SHA-256"
+                    },
+                    keyMaterial,
+                    { name: "AES-CBC", length: 256 },
+                    false,
+                    ["encrypt"]
+                );
+
+                // 生成随机IV
+                const iv = window.crypto.getRandomValues(new Uint8Array(16));
+
+                // 加密
+                const encrypted = await window.crypto.subtle.encrypt(
+                    {
+                        name: "AES-CBC",
+                        iv: iv
+                    },
+                    key,
+                    encoder.encode(password)
+                );
+
+                // 组合IV和加密数据
+                const combined = new Uint8Array(iv.length + encrypted.byteLength);
+                combined.set(iv);
+                combined.set(new Uint8Array(encrypted), iv.length);
+
+                // 返回Base64编码的结果
+                return btoa(String.fromCharCode(...combined));
+            } catch (cryptoError) {
+                console.warn('Web Crypto API加密失败，使用降级方案:', cryptoError);
+                return this.fallbackEncrypt(password);
+            }
+        } catch (error) {
+            console.error('加密失败:', error);
+            // 最终尝试降级方案
+            return this.fallbackEncrypt(password);
+        }
+    }
+
+    // 降级加密方案（适用于HTTP环境）
+    static async fallbackEncrypt(password) {
+        try {
+            // 尝试从后端获取密钥，如果失败则使用固定密钥
+            let encryptionKey;
+            try {
+                const response = await fetch('/cam/api/auth/encryption-key');
+                if (response.ok) {
+                    const keyData = await response.json();
+                    encryptionKey = keyData.key;
+                } else {
+                    throw new Error('获取密钥失败');
+                }
+            } catch (error) {
+                // 如果获取密钥失败，使用与后端一致的固定加密密钥
+                encryptionKey = 'camera_rental_encryption_key_2024';
             }
             
-            const keyData = await response.json();
-            const encryptionKey = keyData.key;
-            const salt = keyData.salt;
+            // 简单的混淆加密方案
+            // 1. 先对密码进行Base64编码
+            const base64Encoded = btoa(encodeURIComponent(password));
             
-            // 生成密钥
-            const encoder = new TextEncoder();
-            const keyMaterial = await window.crypto.subtle.importKey(
-                "raw",
-                encoder.encode(encryptionKey),
-                { name: "PBKDF2" },
-                false,
-                ["deriveKey"]
-            );
-
-            const key = await window.crypto.subtle.deriveKey(
-                {
-                    name: "PBKDF2",
-                    salt: encoder.encode(salt),
-                    iterations: 100000,
-                    hash: "SHA-256"
-                },
-                keyMaterial,
-                { name: "AES-CBC", length: 256 },
-                false,
-                ["encrypt"]
-            );
-
-            // 生成随机IV
-            const iv = window.crypto.getRandomValues(new Uint8Array(16));
-
-            // 加密
-            const encrypted = await window.crypto.subtle.encrypt(
-                {
-                    name: "AES-CBC",
-                    iv: iv
-                },
-                key,
-                encoder.encode(password)
-            );
-
-            // 组合IV和加密数据
-            const combined = new Uint8Array(iv.length + encrypted.byteLength);
-            combined.set(iv);
-            combined.set(new Uint8Array(encrypted), iv.length);
-
-            // 返回Base64编码的结果
-            return btoa(String.fromCharCode(...combined));
+            // 2. 使用密钥进行简单的XOR混淆
+            let obfuscated = '';
+            for (let i = 0; i < base64Encoded.length; i++) {
+                const charCode = base64Encoded.charCodeAt(i) ^ encryptionKey.charCodeAt(i % encryptionKey.length);
+                obfuscated += String.fromCharCode(charCode);
+            }
+            
+            // 3. 再次Base64编码
+            const finalEncoded = btoa(obfuscated);
+            
+            // 4. 添加标识前缀，让后端知道这是降级方案
+            return 'fallback:' + finalEncoded;
         } catch (error) {
-            console.error('简化加密失败:', error);
-            throw new Error('密码加密失败');
+            console.error('降级加密失败:', error);
+            throw new Error('密码加密失败: ' + error.message);
         }
     }
 

@@ -32,7 +32,8 @@ const CONFIG = {
     AUTH: {
         LOGIN: '/auth/login',
         ME: '/auth/me',
-        CHANGE_PASSWORD: '/auth/change-password'
+        CHANGE_PASSWORD: '/auth/change-password',
+        ENCRYPTION_KEY: '/auth/encryption-key'
     },
     
     // 用户管理相关API路径

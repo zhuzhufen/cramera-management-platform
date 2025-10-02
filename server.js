@@ -11,7 +11,13 @@ const port = 3000;
 const JWT_SECRET = 'camera_rental_secret_key'; // 生产环境应该使用环境变量
 
 // 中间件
-app.use(cors());
+app.use(cors({
+    origin: function(origin, callback) {
+        // 允许所有来源（生产环境应该限制为特定域名）
+        callback(null, true);
+    },
+    credentials: true
+}));
 app.use(bodyParser.json());
 app.use('/cam', express.static('public'));
 
