@@ -234,7 +234,6 @@ camera-rental-platform/
    - 检查请求头中的Authorization字段
    - 验证JWT令牌是否过期
    - 确认JWT密钥配置
-
 3. **时间冲突检测异常**
    - 检查日期格式是否正确
    - 验证租赁时间段逻辑
@@ -257,3 +256,7 @@ MIT License
 ---
 
 **注意**: 生产环境部署时请务必修改默认密码和JWT密钥，确保系统安全。
+
+
+## 数据库部署
+docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=123456 -v /Users/tycho/Documents/dev/postgres/data/var/lib/postgresql/data -d postgres
