@@ -30,31 +30,72 @@ async function loadCalendar() {
 }
 
 // 更新相机选择器
-function updateCameraSelector() {
+async function updateCameraSelector() {
     const calendarCameraSelect = document.getElementById('calendar-camera-select');
     const calendarAgentSelect = document.getElementById('calendar-agent-select');
     
-    if (currentCameras.length > 0) {
-        const cameraOptions = '<option value="">所有相机</option>' +
-            currentCameras.map(camera => `
-                <option value="${camera.id}" ${selectedCameraId == camera.id ? 'selected' : ''}>
-                    ${camera.agent ? `【${camera.agent}】` : ''}${camera.camera_code} - ${camera.brand} ${camera.model}
-                </option>
-            `).join('');
+    try {
+        // 如果是代理人，自动设置代理人筛选器
+        if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
+            calendarAgentSelect.innerHTML = `<option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
+            calendarAgentSelect.value = currentUser.agent_name;
+            calendarAgentSelect.readOnly = true;
+            calendarAgentSelect.style.backgroundColor = '#f8f9fa';
+            calendarAgentSelect.style.cursor = 'not-allowed';
+            
+            // 更新代理人筛选标签
+            const agentLabel = calendarAgentSelect.previousElementSibling;
+            if (agentLabel && agentLabel.textContent.includes('代理人')) {
+                agentLabel.textContent = '当前代理人';
+            }
+        } else {
+            // 管理员模式，获取所有代理人列表
+            const response = await authFetch(CONFIG.buildUrl(CONFIG.USER.LIST));
+            if (response.ok) {
+                const users = await response.json();
+                const agents = users.filter(user => user.role === 'agent' && user.agent_name);
+                
+                const agentOptions = '<option value="">所有代理人</option>' +
+                    agents.map(agent => `
+                        <option value="${agent.agent_name}">${agent.agent_name}</option>
+                    `).join('');
+                
+                calendarAgentSelect.innerHTML = agentOptions;
+                calendarAgentSelect.readOnly = false;
+                calendarAgentSelect.style.backgroundColor = '';
+                calendarAgentSelect.style.cursor = '';
+                
+                // 恢复代理人筛选标签
+                const agentLabel = calendarAgentSelect.previousElementSibling;
+                if (agentLabel && agentLabel.textContent === '当前代理人') {
+                    agentLabel.textContent = '代理人';
+                }
+            }
+        }
         
-        calendarCameraSelect.innerHTML = cameraOptions;
-        
-        // 更新代理人选择器 - 从相机列表中提取代理人并去重
-        const agents = [...new Set(currentCameras.map(camera => camera.agent).filter(agent => agent))];
-        const agentOptions = '<option value="">所有代理人</option>' +
-            agents.map(agent => `
-                <option value="${agent}">${agent}</option>
-            `).join('');
-        
-        calendarAgentSelect.innerHTML = agentOptions;
-    } else {
+        // 更新相机选择器
+        if (currentCameras.length > 0) {
+            const cameraOptions = '<option value="">所有相机</option>' +
+                currentCameras.map(camera => `
+                    <option value="${camera.id}" ${selectedCameraId == camera.id ? 'selected' : ''}>
+                        ${camera.agent ? `【${camera.agent}】` : ''}${camera.camera_code} - ${camera.brand} ${camera.model}
+                    </option>
+                `).join('');
+            
+            calendarCameraSelect.innerHTML = cameraOptions;
+        } else {
+            calendarCameraSelect.innerHTML = '<option value="">没有找到相机</option>';
+        }
+    } catch (error) {
+        console.error('更新代理人选择器失败:', error);
+        // 如果获取失败，至少显示当前用户的代理人名称
+        if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
+            calendarAgentSelect.innerHTML = `<option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
+            calendarAgentSelect.value = currentUser.agent_name;
+        } else {
+            calendarAgentSelect.innerHTML = '<option value="">获取代理人失败</option>';
+        }
         calendarCameraSelect.innerHTML = '<option value="">没有找到相机</option>';
-        calendarAgentSelect.innerHTML = '<option value="">没有找到代理人</option>';
     }
 }
 
