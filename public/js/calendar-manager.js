@@ -3,21 +3,28 @@
 // 加载租赁日历
 async function loadCalendar() {
     try {
-        const queryParams = { month: currentMonth, year: currentYear };
+        // 只在有筛选条件时才查询，否则显示空日历
         if (selectedCameraId) {
-            queryParams.camera_id = selectedCameraId;
-        }
-        
-        const queryString = CONFIG.buildQueryString(queryParams);
-        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.CALENDAR) + queryString);
-        if (!response.ok) throw new Error('加载日历数据失败');
+            const queryParams = { month: currentMonth, year: currentYear };
+            if (selectedCameraId) {
+                queryParams.camera_id = selectedCameraId;
+            }
+            
+            const queryString = CONFIG.buildQueryString(queryParams);
+            const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.CALENDAR) + queryString);
+            if (!response.ok) throw new Error('加载日历数据失败');
 
-        const rentals = await response.json();
-        
-        // 保存租赁数据到全局变量，供后续使用
-        window.currentRentals = rentals;
-        
-        renderCalendar(rentals);
+            const rentals = await response.json();
+            
+            // 保存租赁数据到全局变量，供后续使用
+            window.currentRentals = rentals;
+            
+            renderCalendar(rentals);
+        } else {
+            // 没有筛选条件时，显示空日历
+            renderCalendar([]);
+            window.currentRentals = [];
+        }
         
         // 更新相机选择器
         updateCameraSelector();
@@ -35,18 +42,18 @@ async function updateCameraSelector() {
     const calendarAgentSelect = document.getElementById('calendar-agent-select');
     
     try {
-        // 如果是代理人，自动设置代理人筛选器
+        // 如果是代理人，自动设置代理人筛选器为只读显示
         if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
-            calendarAgentSelect.innerHTML = `<option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
-            calendarAgentSelect.value = currentUser.agent_name;
-            calendarAgentSelect.readOnly = true;
-            calendarAgentSelect.style.backgroundColor = '#f8f9fa';
-            calendarAgentSelect.style.cursor = 'not-allowed';
+            calendarAgentSelect.innerHTML = `<option value="">所有代理人</option><option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
+            calendarAgentSelect.value = ''; // 默认不筛选
+            calendarAgentSelect.readOnly = false; // 允许选择，但不自动筛选
+            calendarAgentSelect.style.backgroundColor = '';
+            calendarAgentSelect.style.cursor = '';
             
             // 更新代理人筛选标签
             const agentLabel = calendarAgentSelect.previousElementSibling;
             if (agentLabel && agentLabel.textContent.includes('代理人')) {
-                agentLabel.textContent = '当前代理人';
+                agentLabel.textContent = '代理人';
             }
         } else {
             // 管理员模式，获取所有代理人列表
@@ -88,10 +95,9 @@ async function updateCameraSelector() {
         }
     } catch (error) {
         console.error('更新代理人选择器失败:', error);
-        // 如果获取失败，至少显示当前用户的代理人名称
+        // 如果获取失败，显示所有代理人选项
         if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
-            calendarAgentSelect.innerHTML = `<option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
-            calendarAgentSelect.value = currentUser.agent_name;
+            calendarAgentSelect.innerHTML = `<option value="">所有代理人</option><option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
         } else {
             calendarAgentSelect.innerHTML = '<option value="">获取代理人失败</option>';
         }
