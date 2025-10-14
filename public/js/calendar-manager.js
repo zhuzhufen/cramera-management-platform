@@ -41,11 +41,15 @@ async function updateCameraSelector() {
     const calendarCameraSelect = document.getElementById('calendar-camera-select');
     const calendarAgentSelect = document.getElementById('calendar-agent-select');
     
+    // 保存当前的代理人筛选值
+    const currentAgentValue = calendarAgentSelect.value;
+    
     try {
         // 如果是代理人，自动设置代理人筛选器为只读显示
         if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
             calendarAgentSelect.innerHTML = `<option value="">所有代理人</option><option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
-            calendarAgentSelect.value = ''; // 默认不筛选
+            // 恢复之前的代理人筛选值，如果没有则默认不筛选
+            calendarAgentSelect.value = currentAgentValue || '';
             calendarAgentSelect.readOnly = false; // 允许选择，但不自动筛选
             calendarAgentSelect.style.backgroundColor = '';
             calendarAgentSelect.style.cursor = '';
@@ -68,6 +72,8 @@ async function updateCameraSelector() {
                     `).join('');
                 
                 calendarAgentSelect.innerHTML = agentOptions;
+                // 恢复之前的代理人筛选值
+                calendarAgentSelect.value = currentAgentValue;
                 calendarAgentSelect.readOnly = false;
                 calendarAgentSelect.style.backgroundColor = '';
                 calendarAgentSelect.style.cursor = '';
@@ -98,6 +104,8 @@ async function updateCameraSelector() {
         // 如果获取失败，显示所有代理人选项
         if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
             calendarAgentSelect.innerHTML = `<option value="">所有代理人</option><option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
+            // 恢复之前的代理人筛选值
+            calendarAgentSelect.value = currentAgentValue || '';
         } else {
             calendarAgentSelect.innerHTML = '<option value="">获取代理人失败</option>';
         }
@@ -446,8 +454,9 @@ async function searchCalendarCameras() {
         // 更新日历相机选择器
         updateCalendarCameraSelector(cameras);
         
-        // 保持当前选择的相机
+        // 保持当前选择的相机和代理人筛选值
         // selectedCameraId 保持不变
+        // 代理人筛选值保持不变
         
         // 重新加载日历
         loadCalendar();
