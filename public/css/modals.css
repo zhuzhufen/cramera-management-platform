@@ -48,6 +48,57 @@
     position: relative;
 }
 
+/* 日期租赁记录模态框特殊样式 */
+.date-rentals-modal .modal-content {
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* 确保整体模态框不滚动 */
+}
+
+.date-rentals-modal .modal-content h3 {
+    flex-shrink: 0;
+    margin-bottom: 1rem;
+}
+
+.date-rentals-modal .rentals-list {
+    flex: 1;
+    overflow-y: auto;
+    margin: 0.75rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-right: 8px;
+    max-height: calc(90vh - 200px); /* 为标题和按钮预留空间 */
+}
+
+/* 日期租赁记录模态框滚动条样式 */
+.date-rentals-modal .rentals-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.date-rentals-modal .rentals-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.date-rentals-modal .rentals-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+.date-rentals-modal .rentals-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a42a8 100%);
+}
+
+.date-rentals-modal .modal-actions {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
 /* 模态窗口滚动条样式 */
 .modal-content::-webkit-scrollbar {
     width: 8px;
