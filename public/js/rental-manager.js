@@ -43,7 +43,11 @@ function renderRentalsTable(rentals) {
                     </span>
                 </td>
                 <td>
-                    <button onclick="deleteRental(${rental.id})" class="btn-red">删除</button>
+                    <div class="action-buttons">
+                        <button onclick="showExtendRentalModal(${rental.id})" class="btn-orange">延期</button>
+                        <button onclick="showModifyDatesModal(${rental.id})" class="btn-blue">修改日期</button>
+                        <button onclick="deleteRental(${rental.id})" class="btn-red">删除</button>
+                    </div>
                 </td>
             </tr>
         `;
@@ -338,6 +342,243 @@ async function createRental(event) {
     }
 }
 
+// 显示延期租赁模态框
+async function showExtendRentalModal(rentalId) {
+    try {
+        // 获取租赁记录详情
+        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        if (!response.ok) throw new Error('获取租赁记录失败');
+        
+        const rentals = await response.json();
+        const rental = rentals.find(r => r.id == rentalId);
+        
+        if (!rental) {
+            Message.error('租赁记录未找到');
+            return;
+        }
+        
+        // 设置模态框内容
+        document.getElementById('extend-rental-info').textContent = 
+            `${rental.camera_code} - ${rental.brand} ${rental.model} (${rental.customer_name})`;
+        
+        document.getElementById('extend-current-return-date').textContent = 
+            formatDate(rental.return_date);
+        
+        // 设置新的归还日期（默认为当前归还日期+1天）
+        const currentReturnDate = new Date(rental.return_date);
+        const newReturnDate = new Date(currentReturnDate);
+        newReturnDate.setDate(newReturnDate.getDate() + 1);
+        
+        const newReturnDateInput = document.getElementById('extend-new-return-date');
+        newReturnDateInput.value = newReturnDate.toISOString().split('T')[0];
+        newReturnDateInput.min = new Date(currentReturnDate.getTime() + 86400000).toISOString().split('T')[0]; // 至少比当前日期晚一天
+        
+        // 初始化日期选择器
+        setTimeout(() => {
+            const dateInput = $('#extend-new-return-date');
+            if (dateInput.length) {
+                dateInput.datepicker('destroy');
+                dateInput.datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    autoclose: true,
+                    todayHighlight: true,
+                    startDate: new Date(currentReturnDate.getTime() + 86400000) // 至少比当前日期晚一天
+                });
+            }
+        }, 100);
+        
+        // 存储当前租赁ID
+        document.getElementById('extend-rental-modal').dataset.rentalId = rentalId;
+        
+        showModal('extend-rental-modal');
+    } catch (error) {
+        Message.error('加载租赁信息失败: ' + error.message);
+    }
+}
+
+// 延期租赁
+async function extendRental(event) {
+    event.preventDefault();
+    
+    const rentalId = document.getElementById('extend-rental-modal').dataset.rentalId;
+    const newReturnDate = document.getElementById('extend-new-return-date').value;
+    
+    if (!newReturnDate) {
+        Message.warning('请选择新的归还日期');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            Message.error('请先登录');
+            return;
+        }
+        
+        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.EXTEND, { id: rentalId }), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                new_return_date: newReturnDate
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '延期失败');
+        }
+        
+        const result = await response.json();
+        closeModal('extend-rental-modal');
+        
+        // 刷新相关数据
+        loadRentals();
+        loadCalendar();
+        loadCameras();
+        
+        Message.success(result.message || '租赁延期成功！');
+    } catch (error) {
+        if (error.message.includes('冲突')) {
+            Message.error('延期失败: ' + error.message);
+        } else {
+            Message.error('延期失败: ' + error.message);
+        }
+    }
+}
+
+// 显示修改日期模态框
+async function showModifyDatesModal(rentalId) {
+    try {
+        // 获取租赁记录详情
+        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        if (!response.ok) throw new Error('获取租赁记录失败');
+        
+        const rentals = await response.json();
+        const rental = rentals.find(r => r.id == rentalId);
+        
+        if (!rental) {
+            Message.error('租赁记录未找到');
+            return;
+        }
+        
+        // 设置模态框内容
+        document.getElementById('modify-dates-rental-info').textContent = 
+            `${rental.camera_code} - ${rental.brand} ${rental.model} (${rental.customer_name})`;
+        
+        document.getElementById('modify-dates-current-rental-date').textContent = 
+            formatDate(rental.rental_date);
+        document.getElementById('modify-dates-current-return-date').textContent = 
+            formatDate(rental.return_date);
+        
+        // 设置新的日期
+        const newRentalDateInput = document.getElementById('modify-dates-new-rental-date');
+        const newReturnDateInput = document.getElementById('modify-dates-new-return-date');
+        
+        newRentalDateInput.value = rental.rental_date;
+        newReturnDateInput.value = rental.return_date;
+        
+        // 初始化日期选择器
+        setTimeout(() => {
+            const rentalDateInput = $('#modify-dates-new-rental-date');
+            const returnDateInput = $('#modify-dates-new-return-date');
+            
+            if (rentalDateInput.length && returnDateInput.length) {
+                rentalDateInput.datepicker('destroy');
+                returnDateInput.datepicker('destroy');
+                
+                rentalDateInput.datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    autoclose: true,
+                    todayHighlight: true
+                });
+                
+                returnDateInput.datepicker({
+                    format: 'yyyy-mm-dd',
+                    language: 'zh-CN',
+                    autoclose: true,
+                    todayHighlight: true
+                });
+            }
+        }, 100);
+        
+        // 存储当前租赁ID
+        document.getElementById('modify-dates-modal').dataset.rentalId = rentalId;
+        
+        showModal('modify-dates-modal');
+    } catch (error) {
+        Message.error('加载租赁信息失败: ' + error.message);
+    }
+}
+
+// 修改租赁日期
+async function modifyRentalDates(event) {
+    event.preventDefault();
+    
+    const rentalId = document.getElementById('modify-dates-modal').dataset.rentalId;
+    const newRentalDate = document.getElementById('modify-dates-new-rental-date').value;
+    const newReturnDate = document.getElementById('modify-dates-new-return-date').value;
+    
+    if (!newRentalDate || !newReturnDate) {
+        Message.warning('请选择新的租赁日期和归还日期');
+        return;
+    }
+    
+    if (newRentalDate >= newReturnDate) {
+        Message.warning('归还日期必须晚于租赁日期');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            Message.error('请先登录');
+            return;
+        }
+        
+        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.UPDATE_DATES, { id: rentalId }), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                new_rental_date: newRentalDate,
+                new_return_date: newReturnDate
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '修改日期失败');
+        }
+        
+        const result = await response.json();
+        closeModal('modify-dates-modal');
+        
+        // 刷新相关数据
+        loadRentals();
+        loadCalendar();
+        loadCameras();
+        
+        Message.success(result.message || '租赁日期修改成功！');
+    } catch (error) {
+        if (error.message.includes('冲突')) {
+            Message.error('修改日期失败: ' + error.message);
+        } else {
+            Message.error('修改日期失败: ' + error.message);
+        }
+    }
+}
+
 // 将函数暴露到全局作用域
 window.showCreateRentalModal = showCreateRentalModal;
 window.deleteRental = deleteRental;
+window.showExtendRentalModal = showExtendRentalModal;
+window.showModifyDatesModal = showModifyDatesModal;
+window.extendRental = extendRental;
+window.modifyRentalDates = modifyRentalDates;

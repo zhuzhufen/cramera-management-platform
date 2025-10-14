@@ -259,4 +259,4 @@ MIT License
 
 
 ## 数据库部署
-docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=123456 -v /Users/tycho/Documents/dev/postgres/data/var/lib/postgresql/data -d postgres
+docker run -p 5432:5432 --name postgres -e POSTGRES_PASSWORD=123456 -v /Users/tycho/Documents/dev/postgres/data:/var/lib/postgresql/data -d postgres

@@ -495,6 +495,68 @@
         </div>
     </div>
 
+    <!-- 延期租赁模态框 -->
+    <div id="extend-rental-modal" class="modal">
+        <div class="modal-content">
+            <h3>租赁延期</h3>
+            <form id="extend-rental-form" onsubmit="extendRental(event)">
+                <div class="form-group">
+                    <label>租赁信息:</label>
+                    <span id="extend-rental-info"></span>
+                </div>
+                <div class="form-group">
+                    <label>当前归还日期:</label>
+                    <span id="extend-current-return-date" class="current-date"></span>
+                </div>
+                <div class="form-group">
+                    <label>新的归还日期:</label>
+                    <input type="text" id="extend-new-return-date" class="datepicker-input" required placeholder="选择新的归还日期" readonly>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('extend-rental-modal')">取消</button>
+                    <button type="submit" class="btn-primary">确认延期</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 修改租赁日期模态框 -->
+    <div id="modify-dates-modal" class="modal">
+        <div class="modal-content">
+            <h3>修改租赁日期</h3>
+            <form id="modify-dates-form" onsubmit="modifyRentalDates(event)">
+                <div class="form-group">
+                    <label>租赁信息:</label>
+                    <span id="modify-dates-rental-info"></span>
+                </div>
+                <div class="dates-section">
+                    <div class="form-group">
+                        <label>当前租赁日期:</label>
+                        <span id="modify-dates-current-rental-date" class="current-date"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>当前归还日期:</label>
+                        <span id="modify-dates-current-return-date" class="current-date"></span>
+                    </div>
+                </div>
+                <div class="dates-section">
+                    <div class="form-group">
+                        <label>新的租赁日期:</label>
+                        <input type="text" id="modify-dates-new-rental-date" class="datepicker-input" required placeholder="选择新的租赁日期" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>新的归还日期:</label>
+                        <input type="text" id="modify-dates-new-return-date" class="datepicker-input" required placeholder="选择新的归还日期" readonly>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('modify-dates-modal')">取消</button>
+                    <button type="submit" class="btn-primary">确认修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- 添加用户模态框 -->
     <div id="add-user-modal" class="modal">
         <div class="modal-content">
@@ -729,12 +791,54 @@
                 }
             });
             
+            // 初始化延期和修改日期模态框的日期选择器
+            function initializeExtendDatePicker() {
+                const extendDateInput = $('#extend-new-return-date');
+                if (extendDateInput.length) {
+                    extendDateInput.datepicker('destroy');
+                    extendDateInput.datepicker({
+                        format: 'yyyy-mm-dd',
+                        language: 'zh-CN',
+                        autoclose: true,
+                        todayHighlight: true
+                    });
+                }
+            }
+            
+            function initializeModifyDatesPickers() {
+                const rentalDateInput = $('#modify-dates-new-rental-date');
+                const returnDateInput = $('#modify-dates-new-return-date');
+                
+                if (rentalDateInput.length && returnDateInput.length) {
+                    rentalDateInput.datepicker('destroy');
+                    returnDateInput.datepicker('destroy');
+                    
+                    rentalDateInput.datepicker({
+                        format: 'yyyy-mm-dd',
+                        language: 'zh-CN',
+                        autoclose: true,
+                        todayHighlight: true
+                    });
+                    
+                    returnDateInput.datepicker({
+                        format: 'yyyy-mm-dd',
+                        language: 'zh-CN',
+                        autoclose: true,
+                        todayHighlight: true
+                    });
+                }
+            }
+            
             // 覆盖showModal函数，确保日期选择器正确初始化
             const originalShowModal = window.showModal;
             window.showModal = function(modalId) {
                 originalShowModal(modalId);
                 if (modalId === 'create-rental-modal') {
                     setTimeout(initializeRentalDatePickers, 200);
+                } else if (modalId === 'extend-rental-modal') {
+                    setTimeout(initializeExtendDatePicker, 200);
+                } else if (modalId === 'modify-dates-modal') {
+                    setTimeout(initializeModifyDatesPickers, 200);
                 }
             };
         });

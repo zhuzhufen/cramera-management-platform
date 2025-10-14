@@ -838,6 +838,134 @@ app.put('/cam/api/cameras/:id/status', authenticateToken, requireAdmin, async (r
     }
 });
 
+// 延期租赁记录
+app.put('/cam/api/rentals/:id/extend', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { new_return_date } = req.body;
+        
+        if (!new_return_date) {
+            return res.status(400).json({ error: '新的归还日期不能为空' });
+        }
+        
+        // 检查租赁记录是否存在
+        const rentalCheck = await pool.query('SELECT * FROM rentals WHERE id = $1', [id]);
+        if (rentalCheck.rows.length === 0) {
+            return res.status(404).json({ error: '租赁记录未找到' });
+        }
+        
+        const rental = rentalCheck.rows[0];
+        
+        // 检查新的归还日期是否晚于当前归还日期
+        if (new_return_date <= rental.return_date) {
+            return res.status(400).json({ error: '新的归还日期必须晚于当前归还日期' });
+        }
+        
+        // 检查时间冲突（排除当前租赁记录）
+        const conflictCheck = await pool.query(`
+            SELECT COUNT(*) as conflict_count
+            FROM rentals 
+            WHERE camera_id = $1 
+            AND id != $2
+            AND status IN ('active', 'reserved')
+            AND (
+                (rental_date <= $3 AND return_date >= $3) OR
+                (rental_date <= $4 AND return_date >= $4) OR
+                (rental_date >= $3 AND return_date <= $4)
+            )
+        `, [rental.camera_id, id, rental.rental_date, new_return_date]);
+        
+        const hasConflict = parseInt(conflictCheck.rows[0].conflict_count) > 0;
+        
+        if (hasConflict) {
+            return res.status(400).json({ 
+                error: '延期后的时间段与已有租赁记录冲突',
+                hasConflict: true
+            });
+        }
+        
+        // 更新租赁记录的归还日期
+        const result = await pool.query(`
+            UPDATE rentals 
+            SET return_date = $1, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = $2 
+            RETURNING *
+        `, [new_return_date, id]);
+        
+        res.json({ 
+            message: '租赁记录延期成功',
+            updatedRental: result.rows[0]
+        });
+    } catch (err) {
+        console.error('延期租赁记录失败:', err);
+        res.status(500).json({ error: '延期租赁记录失败' });
+    }
+});
+
+// 修改租赁日期
+app.put('/cam/api/rentals/:id/dates', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { new_rental_date, new_return_date } = req.body;
+        
+        if (!new_rental_date || !new_return_date) {
+            return res.status(400).json({ error: '新的租赁日期和归还日期不能为空' });
+        }
+        
+        // 检查日期有效性
+        if (new_rental_date >= new_return_date) {
+            return res.status(400).json({ error: '归还日期必须晚于租赁日期' });
+        }
+        
+        // 检查租赁记录是否存在
+        const rentalCheck = await pool.query('SELECT * FROM rentals WHERE id = $1', [id]);
+        if (rentalCheck.rows.length === 0) {
+            return res.status(404).json({ error: '租赁记录未找到' });
+        }
+        
+        const rental = rentalCheck.rows[0];
+        
+        // 检查时间冲突（排除当前租赁记录）
+        const conflictCheck = await pool.query(`
+            SELECT COUNT(*) as conflict_count
+            FROM rentals 
+            WHERE camera_id = $1 
+            AND id != $2
+            AND status IN ('active', 'reserved')
+            AND (
+                (rental_date <= $3 AND return_date >= $3) OR
+                (rental_date <= $4 AND return_date >= $4) OR
+                (rental_date >= $3 AND return_date <= $4)
+            )
+        `, [rental.camera_id, id, new_rental_date, new_return_date]);
+        
+        const hasConflict = parseInt(conflictCheck.rows[0].conflict_count) > 0;
+        
+        if (hasConflict) {
+            return res.status(400).json({ 
+                error: '修改后的时间段与已有租赁记录冲突',
+                hasConflict: true
+            });
+        }
+        
+        // 更新租赁记录的日期
+        const result = await pool.query(`
+            UPDATE rentals 
+            SET rental_date = $1, return_date = $2, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = $3 
+            RETURNING *
+        `, [new_rental_date, new_return_date, id]);
+        
+        res.json({ 
+            message: '租赁日期修改成功',
+            updatedRental: result.rows[0]
+        });
+    } catch (err) {
+        console.error('修改租赁日期失败:', err);
+        res.status(500).json({ error: '修改租赁日期失败' });
+    }
+});
+
 // 删除租赁记录（需要管理员权限）
 app.delete('/cam/api/rentals/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {

@@ -53,6 +53,6 @@ CREATE INDEX IF NOT EXISTS idx_rentals_status ON rentals(status);
 
 
 -- 插入超级管理员用户
--- 密码: admin123 (bcrypt加密)
+-- 密码: 123456 (bcrypt加密)
 INSERT INTO users (username, password, role, agent_name) VALUES
 ('admin', '$2b$10$8iAD2R.SDGBB4Qrm3uwmXOU21m0T6g9pON/mAxisrG9iGDRurOSNS', 'admin', '系统管理员');
