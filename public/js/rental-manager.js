@@ -6,7 +6,7 @@ async function loadRentals() {
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = '<tr><td colspan="9" class="loading">加载中</td></tr>';
 
-        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
         if (!response.ok) throw new Error('加载租赁记录失败');
 
         const rentals = await response.json();
@@ -83,7 +83,7 @@ async function searchRentals() {
         if (endDate) queryParams.end_date = endDate;
         
         const queryString = CONFIG.buildQueryString(queryParams);
-        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + queryString);
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + queryString);
         if (!response.ok) throw new Error('搜索失败');
 
         let rentals = await response.json();
@@ -346,7 +346,7 @@ async function createRental(event) {
 async function showExtendRentalModal(rentalId) {
     try {
         // 获取租赁记录详情
-        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
         if (!response.ok) throw new Error('获取租赁记录失败');
         
         const rentals = await response.json();
@@ -454,7 +454,7 @@ async function extendRental(event) {
 async function showModifyDatesModal(rentalId) {
     try {
         // 获取租赁记录详情
-        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
         if (!response.ok) throw new Error('获取租赁记录失败');
         
         const rentals = await response.json();
