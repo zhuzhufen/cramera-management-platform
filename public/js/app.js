@@ -134,23 +134,61 @@ function adjustUIForUserRole() {
     if (currentUser.role === 'agent') {
         // 代理人只能看到自己的数据，但可以添加相机
         if (addCameraBtn) addCameraBtn.style.display = 'block';
-        if (agentInput) agentInput.style.display = 'none';
-        if (rentalsAgentInput) rentalsAgentInput.style.display = 'none';
+        if (agentInput) {
+            agentInput.style.display = 'block';
+            agentInput.value = currentUser.agent_name;
+            agentInput.readOnly = true;
+            agentInput.placeholder = '自动筛选当前代理人';
+            agentInput.style.backgroundColor = '#f8f9fa';
+            agentInput.style.cursor = 'not-allowed';
+        }
+        if (rentalsAgentInput) {
+            rentalsAgentInput.style.display = 'block';
+            rentalsAgentInput.value = currentUser.agent_name;
+            rentalsAgentInput.readOnly = true;
+            rentalsAgentInput.placeholder = '自动筛选当前代理人';
+            rentalsAgentInput.style.backgroundColor = '#f8f9fa';
+            rentalsAgentInput.style.cursor = 'not-allowed';
+        }
         if (usersTab) usersTab.style.display = 'none';
         
-        // 隐藏代理人筛选标签
+        // 更新代理人筛选标签
         const agentLabels = document.querySelectorAll('label[for*="agent"]');
         agentLabels.forEach(label => {
             if (label.textContent.includes('代理人')) {
-                label.style.display = 'none';
+                label.textContent = '当前代理人';
+                label.style.display = 'block';
             }
         });
     } else {
         // 管理员可以看到所有功能
         if (addCameraBtn) addCameraBtn.style.display = 'block';
-        if (agentInput) agentInput.style.display = 'block';
-        if (rentalsAgentInput) rentalsAgentInput.style.display = 'block';
+        if (agentInput) {
+            agentInput.style.display = 'block';
+            agentInput.readOnly = false;
+            agentInput.value = '';
+            agentInput.placeholder = '输入代理人...';
+            agentInput.style.backgroundColor = '';
+            agentInput.style.cursor = '';
+        }
+        if (rentalsAgentInput) {
+            rentalsAgentInput.style.display = 'block';
+            rentalsAgentInput.readOnly = false;
+            rentalsAgentInput.value = '';
+            rentalsAgentInput.placeholder = '输入代理人...';
+            rentalsAgentInput.style.backgroundColor = '';
+            rentalsAgentInput.style.cursor = '';
+        }
         if (usersTab) usersTab.style.display = 'block';
+        
+        // 恢复代理人筛选标签
+        const agentLabels = document.querySelectorAll('label[for*="agent"]');
+        agentLabels.forEach(label => {
+            if (label.textContent === '当前代理人') {
+                label.textContent = '代理人';
+                label.style.display = 'block';
+            }
+        });
     }
 }
 
