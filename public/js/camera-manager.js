@@ -210,8 +210,30 @@ function resetCameraForm() {
     form.dataset.editingId = '';
     document.querySelector('#add-camera-modal h3').textContent = '添加新相机';
     
-    // 重新加载代理人选择器
-    updateAgentSelector();
+    // 强制重新加载代理人选择器
+    forceUpdateAgentSelector();
+}
+
+// 强制更新代理人选择器
+function forceUpdateAgentSelector() {
+    const agentSelect = document.getElementById('agent-select');
+    if (!agentSelect) {
+        console.log('代理人选择器未找到');
+        return;
+    }
+    
+    console.log('强制更新代理人选择器，当前用户:', currentUser);
+    
+    // 如果是代理人，直接设置代理人名称
+    if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
+        console.log('代理人模式，直接设置代理人:', currentUser.agent_name);
+        agentSelect.innerHTML = `<option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
+        agentSelect.value = currentUser.agent_name;
+        console.log('代理人选择器强制设置完成，当前值:', agentSelect.value);
+    } else {
+        // 管理员模式，调用原有的更新函数
+        updateAgentSelector();
+    }
 }
 
 // 修改相机
@@ -275,20 +297,32 @@ function toggleFilters() {
 async function updateAgentSelector() {
     try {
         const agentSelect = document.getElementById('agent-select');
-        if (!agentSelect) return;
+        if (!agentSelect) {
+            console.log('代理人选择器未找到');
+            return;
+        }
+        
+        console.log('更新代理人选择器，当前用户:', currentUser);
         
         // 如果是代理人，自动设置自己的代理人名称
-        if (currentUser.role === 'agent') {
+        if (currentUser && currentUser.role === 'agent') {
+            console.log('代理人模式，设置代理人:', currentUser.agent_name);
             agentSelect.innerHTML = `<option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
+            // 设置选择器的值为当前代理人
+            agentSelect.value = currentUser.agent_name;
+            console.log('代理人选择器设置完成，当前值:', agentSelect.value);
             return;
         }
         
         // 管理员需要获取所有代理人列表
+        console.log('管理员模式，获取代理人列表');
         const response = await authFetch(CONFIG.buildUrl(CONFIG.USER.LIST));
         if (!response.ok) throw new Error('获取用户列表失败');
         
         const users = await response.json();
         const agents = users.filter(user => user.role === 'agent' && user.agent_name);
+        
+        console.log('获取到的代理人列表:', agents);
         
         // 清空现有选项
         agentSelect.innerHTML = '<option value="">请选择代理人</option>';
@@ -301,11 +335,15 @@ async function updateAgentSelector() {
             agentSelect.appendChild(option);
         });
         
+        console.log('代理人选择器更新完成，选项数量:', agentSelect.options.length);
+        
     } catch (error) {
+        console.error('更新代理人选择器失败:', error);
         // 如果获取失败，至少显示当前用户的代理人名称
         const agentSelect = document.getElementById('agent-select');
-        if (currentUser.role === 'agent' && currentUser.agent_name) {
+        if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
             agentSelect.innerHTML = `<option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
+            agentSelect.value = currentUser.agent_name;
         } else {
             agentSelect.innerHTML = '<option value="">获取代理人失败</option>';
         }

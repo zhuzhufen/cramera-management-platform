@@ -132,8 +132,8 @@ function adjustUIForUserRole() {
     const usersTab = document.querySelector('[data-tab="users"]');
     
     if (currentUser.role === 'agent') {
-        // 代理人只能看到自己的数据
-        if (addCameraBtn) addCameraBtn.style.display = 'none';
+        // 代理人只能看到自己的数据，但可以添加相机
+        if (addCameraBtn) addCameraBtn.style.display = 'block';
         if (agentInput) agentInput.style.display = 'none';
         if (rentalsAgentInput) rentalsAgentInput.style.display = 'none';
         if (usersTab) usersTab.style.display = 'none';
@@ -177,11 +177,11 @@ function setupEventListeners() {
         }
     });
 
-    // 添加相机按钮
-    document.getElementById('add-camera-btn').addEventListener('click', function() {
-        resetCameraForm();
-        showModal('add-camera-modal');
-    });
+// 添加相机按钮
+document.getElementById('add-camera-btn').addEventListener('click', function() {
+    resetCameraForm();
+    showModal('add-camera-modal');
+});
 
     // 添加相机表单提交
     document.getElementById('add-camera-form').addEventListener('submit', addCamera);
