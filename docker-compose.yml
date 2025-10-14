@@ -1,11 +1,31 @@
 services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:latest
+    container_name: camera_rental_postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-camera_rental_management}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123456}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # 相机租赁管理应用
   camera-rental-app:
     image: camera-rental-platform:latest
     container_name: camera_rental_app
     environment:
-      DB_HOST: ${DB_HOST:-127.0.0.1}
-      DB_PORT: ${DB_PORT:-5432}
+      DB_HOST: postgres
+      DB_PORT: 5432
       DB_NAME: ${DB_NAME:-camera_rental_management}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-123456}
@@ -14,4 +34,10 @@ services:
       ENCRYPTION_SALT: ${ENCRYPTION_SALT:-your_strong_encryption_salt_here}
     ports:
       - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  postgres_data:
