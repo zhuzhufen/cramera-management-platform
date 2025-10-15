@@ -31,7 +31,7 @@ function renderRentalsTable(rentals) {
     const tableBody = document.getElementById('rentals-table-body');
     
     if (rentals.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="11" class="loading">没有租赁记录</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9" class="loading">没有租赁记录</td></tr>';
         return;
     }
 
@@ -44,11 +44,19 @@ function renderRentalsTable(rentals) {
         
         return `
             <tr>
-                <td>${rental.camera_code}</td>
-                <td>${rental.brand} ${rental.model}</td>
+                <td>
+                    <div class="camera-info">
+                        <div class="camera-code">${rental.camera_code}</div>
+                        <div class="camera-model">${rental.brand} ${rental.model}</div>
+                    </div>
+                </td>
                 <td>${rental.agent || '无'}</td>
-                <td>${rental.customer_name}</td>
-                <td>${rental.customer_phone || '无'}</td>
+                <td>
+                    <div class="customer-info">
+                        <div class="customer-name">${rental.customer_name}</div>
+                        <div class="customer-phone">${rental.customer_phone || '无'}</div>
+                    </div>
+                </td>
                 <td>${formatDate(rental.rental_date)}</td>
                 <td>${formatDate(rental.return_date)}</td>
                 <td>${rentalDays} 天</td>
@@ -59,11 +67,15 @@ function renderRentalsTable(rentals) {
                 </td>
                 <td>${notesDisplay}</td>
                 <td>
-                    <div class="action-buttons">
-                        <button onclick="showExtendRentalModal(${rental.id})" class="btn-orange btn-small">延期</button>
-                        <button onclick="showModifyDatesModal(${rental.id})" class="btn-blue btn-small">改期</button>
-                        <button onclick="showEditNotesModal(${rental.id})" class="btn-green btn-small">备注</button>
-                        <button onclick="deleteRental(${rental.id})" class="btn-red btn-small">删除</button>
+                    <div class="action-buttons-grid">
+                        <div class="action-row">
+                            <button onclick="showExtendRentalModal(${rental.id})" class="btn-orange btn-small">延期</button>
+                            <button onclick="showModifyDatesModal(${rental.id})" class="btn-blue btn-small">改期</button>
+                        </div>
+                        <div class="action-row">
+                            <button onclick="showEditNotesModal(${rental.id})" class="btn-green btn-small">备注</button>
+                            <button onclick="deleteRental(${rental.id})" class="btn-red btn-small">删除</button>
+                        </div>
                     </div>
                 </td>
             </tr>

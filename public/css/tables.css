@@ -580,13 +580,102 @@
     margin-top: 4px;
 }
 
-/* 租赁记录操作按钮 */
-.action-buttons {
+/* 相机信息合并显示 */
+.camera-info {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.camera-code {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.camera-model {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* 租赁信息合并显示 */
+.customer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.customer-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.customer-phone {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* 各列宽度调整 */
+.days-column {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
+
+.status-column {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+}
+
+.notes-column {
+    width: 180px;
+    min-width: 150px;
+    max-width: 250px;
+}
+
+/* 操作列样式 */
+.action-column {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+}
+
+/* 确保表格内容不换行 */
+.rentals-table th,
+.rentals-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 特殊处理备注列，允许换行 */
+.rentals-table .notes-column {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* 租赁记录操作按钮 - 两行两列布局 */
+.action-buttons-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.action-row {
+    display: flex;
     gap: 4px;
     justify-content: center;
-    align-items: center;
+}
+
+.action-row .btn-small {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 6px !important;
+    font-size: 0.7rem !important;
 }
 
 .btn-small {
