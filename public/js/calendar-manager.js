@@ -250,62 +250,10 @@ function showRentalsForDate(dateStr) {
     const modalContent = `
         <div class="date-rentals-modal">
             <h3>${formattedDate} 租赁记录</h3>
-            <div class="rentals-list">
-                ${dayRentals.map(rental => {
-                    const currentStatus = calculateRentalStatus(rental);
-                    const statusText = getRentalStatusText(currentStatus);
-                    const rentalStart = formatDate(rental.rental_date);
-                    const rentalEnd = formatDate(rental.return_date);
-                    
-                    return `
-                        <div class="rental-item" data-rental-id="${rental.id}">
-                            <div class="rental-header">
-                                <div class="camera-info">
-                                    <span class="camera-icon">📷</span>
-                                    <div class="camera-details">
-                                        <div class="camera-code">${rental.camera_code}</div>
-                                        <div class="camera-model">${rental.brand} ${rental.model} ${rental.serial_number ? `(${rental.serial_number})` : ''}</div>
-                                    </div>
-                                </div>
-                                <div class="header-right">
-                                    ${rental.agent ? `
-                                    <div class="agent-info">
-                                        <span class="agent-icon">👨‍💼</span>
-                                        ${rental.agent}
-                                    </div>
-                                    ` : ''}
-                                    <div class="rental-status status-${currentStatus}">
-                                        ${statusText}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="rental-body">
-                                <div class="customer-info">
-                                    <div class="customer-card">
-                                        <span class="customer-icon">👤</span>
-                                        <div class="customer-details">
-                                            <div class="customer-label">客户信息</div>
-                                            <div class="customer-values">${rental.customer_name}${rental.customer_phone ? ` - ${rental.customer_phone}` : ''}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="rental-dates">
-                                    <div class="date-range">
-                                        <span class="date-icon">📅</span>
-                                        <div class="date-info">
-                                            <div class="date-label">租赁期间</div>
-                                            <div class="date-values">${rentalStart} - ${rentalEnd}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="rental-actions">
-                                <button class="btn-view-detail" onclick="showRentalDetail(${rental.id})">查看详情</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
+            <div class="rentals-list" id="rentals-list-content">
+                ${renderRentalsPage(dayRentals, 1)}
             </div>
+            ${dayRentals.length > 2 ? renderPagination(dayRentals, 1) : ''}
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeModal('date-rentals-modal')">关闭</button>
             </div>
@@ -314,6 +262,114 @@ function showRentalsForDate(dateStr) {
     
     // 创建并显示模态框
     showCustomModal('date-rentals-modal', modalContent);
+    
+    // 保存租赁数据供分页使用
+    window.currentDateRentals = dayRentals;
+    window.currentDateStr = dateStr;
+}
+
+// 渲染租赁记录分页
+function renderRentalsPage(rentals, currentPage) {
+    const pageSize = 2; // 每页显示2条记录
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const pageRentals = rentals.slice(startIndex, endIndex);
+    
+    return pageRentals.map(rental => {
+        const currentStatus = calculateRentalStatus(rental);
+        const statusText = getRentalStatusText(currentStatus);
+        const rentalStart = formatDate(rental.rental_date);
+        const rentalEnd = formatDate(rental.return_date);
+        
+        return `
+            <div class="rental-item" data-rental-id="${rental.id}">
+                <div class="rental-header">
+                    <div class="camera-info">
+                        <span class="camera-icon">📷</span>
+                        <div class="camera-details">
+                            <div class="camera-code">${rental.camera_code}</div>
+                            <div class="camera-model">${rental.brand} ${rental.model} ${rental.serial_number ? `(${rental.serial_number})` : ''}</div>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        ${rental.agent ? `
+                        <div class="agent-info">
+                            <span class="agent-icon">👨‍💼</span>
+                            ${rental.agent}
+                        </div>
+                        ` : ''}
+                        <div class="rental-status status-${currentStatus}">
+                            ${statusText}
+                        </div>
+                    </div>
+                </div>
+                <div class="rental-actions">
+                    <button class="btn-view-detail" onclick="showRentalDetail(${rental.id})">查看详情</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 渲染分页控件
+function renderPagination(rentals, currentPage) {
+    const pageSize = 2; // 每页显示2条记录
+    const totalPages = Math.ceil(rentals.length / pageSize);
+    
+    if (totalPages <= 1) {
+        return '';
+    }
+    
+    let paginationHTML = `
+        <div class="rental-pagination">
+            <div class="pagination-info">
+                第 ${currentPage} 页，共 ${totalPages} 页，总计 ${rentals.length} 条记录
+            </div>
+            <div class="pagination-buttons">
+    `;
+    
+    // 上一页按钮
+    if (currentPage > 1) {
+        paginationHTML += `<button class="pagination-btn" onclick="goToRentalPage(${currentPage - 1})">上一页</button>`;
+    }
+    
+    // 页码按钮
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === currentPage) {
+            paginationHTML += `<button class="pagination-btn active">${i}</button>`;
+        } else {
+            paginationHTML += `<button class="pagination-btn" onclick="goToRentalPage(${i})">${i}</button>`;
+        }
+    }
+    
+    // 下一页按钮
+    if (currentPage < totalPages) {
+        paginationHTML += `<button class="pagination-btn" onclick="goToRentalPage(${currentPage + 1})">下一页</button>`;
+    }
+    
+    paginationHTML += `
+            </div>
+        </div>
+    `;
+    
+    return paginationHTML;
+}
+
+// 跳转到指定页码
+function goToRentalPage(page) {
+    const rentals = window.currentDateRentals;
+    if (!rentals) return;
+    
+    const rentalsList = document.getElementById('rentals-list-content');
+    const paginationContainer = document.querySelector('.rental-pagination');
+    
+    if (rentalsList) {
+        rentalsList.innerHTML = renderRentalsPage(rentals, page);
+    }
+    
+    if (paginationContainer) {
+        paginationContainer.outerHTML = renderPagination(rentals, page);
+    }
 }
 
 // 获取指定日期的所有租赁记录

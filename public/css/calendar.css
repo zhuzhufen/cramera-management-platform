@@ -414,90 +414,143 @@
 }
 
 .date-rentals-modal .rental-body {
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
+}
+
+.date-rentals-modal .info-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
 }
 
 .date-rentals-modal .customer-info {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: stretch;
+    flex: 1;
 }
 
 .date-rentals-modal .customer-card {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    background: #f8f9fa;
-    padding: 0.4rem 0.6rem;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    min-width: 0;
     flex: 1;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.date-rentals-modal .customer-card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 .date-rentals-modal .customer-icon {
-    font-size: 0.8rem;
-    opacity: 0.8;
+    font-size: 1rem;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
 }
 
 .date-rentals-modal .customer-details {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
 }
 
 .date-rentals-modal .customer-label {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     color: #6c757d;
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .date-rentals-modal .customer-values {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: #495057;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .date-rentals-modal .rental-dates {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: stretch;
+    flex: 1;
 }
 
 .date-rentals-modal .date-range {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    background: #f8f9fa;
-    padding: 0.4rem 0.6rem;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    min-width: 0;
     flex: 1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.date-rentals-modal .date-range:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 .date-rentals-modal .date-icon {
-    font-size: 0.8rem;
-    opacity: 0.8;
+    font-size: 1rem;
+    color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+    padding: 0.4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
 }
 
 .date-rentals-modal .date-info {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1;
 }
 
 .date-rentals-modal .date-label {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     color: #6c757d;
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .date-rentals-modal .date-values {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: #495057;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .date-rentals-modal .agent-info {
