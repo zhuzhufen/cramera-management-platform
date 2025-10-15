@@ -665,10 +665,21 @@ app.get('/cam/api/cameras', getCurrentUser, async (req, res) => {
     }
 });
 
-// 获取所有租赁记录（添加权限控制）
+// 获取所有租赁记录（添加权限控制和分页支持）
 app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
     try {
-        const { camera_code, agent, customer_name, start_date, end_date } = req.query;
+        const { 
+            camera_code, 
+            agent, 
+            customer_name, 
+            start_date, 
+            end_date,
+            page = 1,
+            page_size = 10
+        } = req.query;
+        
+        // 计算分页偏移量
+        const offset = (parseInt(page) - 1) * parseInt(page_size);
         
         let query = `
             SELECT 
@@ -689,55 +700,101 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
             WHERE 1=1
         `;
         
+        let countQuery = `
+            SELECT COUNT(*) as total_count
+            FROM rentals r
+            JOIN cameras c ON r.camera_id = c.id
+            WHERE 1=1
+        `;
+        
         const params = [];
+        const countParams = [];
         let paramCount = 0;
+        let countParamCount = 0;
         
         // 如果是代理人，只能看到自己相机的租赁记录
         if (req.user && req.user.role === 'agent' && req.user.agent_name) {
             paramCount++;
+            countParamCount++;
             query += ` AND c.agent = $${paramCount}`;
+            countQuery += ` AND c.agent = $${countParamCount}`;
             params.push(req.user.agent_name);
+            countParams.push(req.user.agent_name);
         }
         
         // 相机编码筛选
         if (camera_code) {
             paramCount++;
+            countParamCount++;
             query += ` AND c.camera_code ILIKE $${paramCount}`;
+            countQuery += ` AND c.camera_code ILIKE $${countParamCount}`;
             params.push(`%${camera_code}%`);
+            countParams.push(`%${camera_code}%`);
         }
         
         // 代理人筛选（管理员专用）
         if (agent && req.user && req.user.role === 'admin') {
             paramCount++;
+            countParamCount++;
             query += ` AND c.agent ILIKE $${paramCount}`;
+            countQuery += ` AND c.agent ILIKE $${countParamCount}`;
             params.push(`%${agent}%`);
+            countParams.push(`%${agent}%`);
         }
         
         // 租赁人筛选
         if (customer_name) {
             paramCount++;
+            countParamCount++;
             query += ` AND r.customer_name ILIKE $${paramCount}`;
+            countQuery += ` AND r.customer_name ILIKE $${countParamCount}`;
             params.push(`%${customer_name}%`);
+            countParams.push(`%${customer_name}%`);
         }
         
         // 租赁开始日期筛选
         if (start_date) {
             paramCount++;
+            countParamCount++;
             query += ` AND r.rental_date >= $${paramCount}`;
+            countQuery += ` AND r.rental_date >= $${countParamCount}`;
             params.push(start_date);
+            countParams.push(start_date);
         }
         
         // 租赁结束日期筛选
         if (end_date) {
             paramCount++;
+            countParamCount++;
             query += ` AND r.return_date <= $${paramCount}`;
+            countQuery += ` AND r.return_date <= $${countParamCount}`;
             params.push(end_date);
+            countParams.push(end_date);
         }
         
-        query += ` ORDER BY r.rental_date DESC`;
+        query += ` ORDER BY r.rental_date DESC LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
+        params.push(parseInt(page_size), offset);
         
-        const result = await pool.query(query, params);
-        res.json(result.rows);
+        // 执行查询
+        const [result, countResult] = await Promise.all([
+            pool.query(query, params),
+            pool.query(countQuery, countParams)
+        ]);
+        
+        const totalCount = parseInt(countResult.rows[0].total_count);
+        const totalPages = Math.ceil(totalCount / parseInt(page_size));
+        
+        res.json({
+            rentals: result.rows,
+            pagination: {
+                current_page: parseInt(page),
+                page_size: parseInt(page_size),
+                total_count: totalCount,
+                total_pages: totalPages,
+                has_previous: parseInt(page) > 1,
+                has_next: parseInt(page) < totalPages
+            }
+        });
     } catch (err) {
         console.error('获取租赁记录失败:', err);
         res.status(500).json({ error: '获取租赁记录失败' });

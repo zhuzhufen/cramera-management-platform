@@ -47,56 +47,88 @@
 }
 
 /* 分页控件样式 */
-.pagination-controls {
-    margin-top: 1rem;
+.pagination-container {
+    margin-top: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8fdff 0%, #f0f8ff 100%);
+    border-radius: 12px;
+    border: 1px solid #e1f5fe;
 }
 
 .pagination-info {
-    color: #6c757d;
+    color: #1e88e5;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #e1f5fe;
+    box-shadow: 0 2px 4px rgba(30, 136, 229, 0.1);
 }
 
-.pagination-buttons {
+.pagination-controls {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .pagination-btn {
-    padding: 6px 12px;
-    border: 1px solid #dee2e6;
+    padding: 8px 16px;
+    border: 1px solid #1e88e5;
     background: white;
-    color: #495057;
-    border-radius: 4px;
+    color: #1e88e5;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    min-width: 32px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 40px;
     text-align: center;
+    box-shadow: 0 2px 4px rgba(30, 136, 229, 0.2);
 }
 
 .pagination-btn:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
+    background: linear-gradient(135deg, #1e88e5 0%, #00bcd4 100%);
+    color: white;
+    border-color: #1e88e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
 }
 
 .pagination-btn.active {
-    background: #667eea;
+    background: linear-gradient(135deg, #1e88e5 0%, #00bcd4 100%);
     color: white;
-    border-color: #667eea;
+    border-color: #1e88e5;
+    box-shadow: 0 4px 8px rgba(30, 136, 229, 0.4);
 }
 
-.pagination-btn:disabled {
-    background: #6c757d;
-    color: white;
-    border-color: #6c757d;
+.pagination-btn.disabled {
+    background: #e9ecef;
+    color: #6c757d;
+    border-color: #dee2e6;
     cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.pagination-btn.disabled:hover {
+    background: #e9ecef;
+    color: #6c757d;
+    border-color: #dee2e6;
+    transform: none;
+    box-shadow: none;
+}
+
+.pagination-ellipsis {
+    padding: 8px 4px;
+    color: #6c757d;
+    font-weight: 600;
 }
 
 /* 超过五条换行样式 */

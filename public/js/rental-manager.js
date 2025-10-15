@@ -1,19 +1,33 @@
 // 租赁管理模块
 
+// 分页状态
+let currentPage = 1;
+let pageSize = 10;
+let totalPages = 1;
+let totalCount = 0;
+
 // 加载租赁记录
-async function loadRentals() {
+async function loadRentals(page = 1) {
     try {
+        currentPage = page;
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = '<tr><td colspan="9" class="loading">加载中</td></tr>';
 
-        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        const queryParams = {
+            page: currentPage,
+            page_size: pageSize
+        };
+
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + CONFIG.buildQueryString(queryParams));
         if (!response.ok) throw new Error('加载租赁记录失败');
 
-        const rentals = await response.json();
-        renderRentalsTable(rentals);
+        const data = await response.json();
+        renderRentalsTable(data.rentals);
+        updatePagination(data.pagination);
     } catch (error) {
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = `<tr><td colspan="9" class="error">加载租赁记录失败: ${error.message}</td></tr>`;
+        resetPagination();
     }
 }
 
@@ -84,7 +98,7 @@ function renderRentalsTable(rentals) {
 }
 
 // 搜索租赁记录
-async function searchRentals() {
+async function searchRentals(page = 1) {
     const cameraInput = document.getElementById('rentals-camera-input');
     const agentInput = document.getElementById('rentals-agent-input');
     const customerInput = document.getElementById('rentals-customer-input');
@@ -100,11 +114,15 @@ async function searchRentals() {
     const statusValue = statusSelect.value;
 
     try {
+        currentPage = page;
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = '<tr><td colspan="9" class="loading">搜索中</td></tr>';
 
         // 构建查询参数
-        const queryParams = {};
+        const queryParams = {
+            page: currentPage,
+            page_size: pageSize
+        };
         if (cameraTerm) queryParams.camera_code = cameraTerm;
         if (agentTerm) queryParams.agent = agentTerm;
         if (customerTerm) queryParams.customer_name = customerTerm;
@@ -115,7 +133,8 @@ async function searchRentals() {
         const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + queryString);
         if (!response.ok) throw new Error('搜索失败');
 
-        let rentals = await response.json();
+        const data = await response.json();
+        let rentals = data.rentals;
         
         // 客户端状态筛选（因为后端接口没有状态筛选）
         if (statusValue) {
@@ -126,9 +145,11 @@ async function searchRentals() {
         }
 
         renderRentalsTable(rentals);
+        updatePagination(data.pagination);
     } catch (error) {
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = `<tr><td colspan="9" class="error">搜索失败: ${error.message}</td></tr>`;
+        resetPagination();
     }
 }
 
@@ -375,11 +396,11 @@ async function createRental(event) {
 async function showExtendRentalModal(rentalId) {
     try {
         // 获取租赁记录详情
-        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + '?page=1&page_size=1000');
         if (!response.ok) throw new Error('获取租赁记录失败');
         
-        const rentals = await response.json();
-        const rental = rentals.find(r => r.id == rentalId);
+        const data = await response.json();
+        const rental = data.rentals.find(r => r.id == rentalId);
         
         if (!rental) {
             Message.error('租赁记录未找到');
@@ -483,11 +504,11 @@ async function extendRental(event) {
 async function showModifyDatesModal(rentalId) {
     try {
         // 获取租赁记录详情
-        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + '?page=1&page_size=1000');
         if (!response.ok) throw new Error('获取租赁记录失败');
         
-        const rentals = await response.json();
-        const rental = rentals.find(r => r.id == rentalId);
+        const data = await response.json();
+        const rental = data.rentals.find(r => r.id == rentalId);
         
         if (!rental) {
             Message.error('租赁记录未找到');
@@ -608,11 +629,11 @@ async function modifyRentalDates(event) {
 async function showEditNotesModal(rentalId) {
     try {
         // 获取租赁记录详情
-        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + '?page=1&page_size=1000');
         if (!response.ok) throw new Error('获取租赁记录失败');
         
-        const rentals = await response.json();
-        const rental = rentals.find(r => r.id == rentalId);
+        const data = await response.json();
+        const rental = data.rentals.find(r => r.id == rentalId);
         
         if (!rental) {
             Message.error('租赁记录未找到');
@@ -678,6 +699,119 @@ async function updateRentalNotes(event) {
     }
 }
 
+// 更新分页控件
+function updatePagination(pagination) {
+    totalPages = pagination.total_pages;
+    totalCount = pagination.total_count;
+    currentPage = pagination.current_page;
+    
+    // 创建或更新分页控件
+    let paginationContainer = document.getElementById('rentals-pagination');
+    if (!paginationContainer) {
+        paginationContainer = document.createElement('div');
+        paginationContainer.id = 'rentals-pagination';
+        paginationContainer.className = 'pagination-container';
+        
+        const tableContainer = document.querySelector('.rentals-table-container');
+        tableContainer.appendChild(paginationContainer);
+    }
+    
+    // 生成分页HTML
+    paginationContainer.innerHTML = generatePaginationHTML(pagination);
+}
+
+// 重置分页状态
+function resetPagination() {
+    currentPage = 1;
+    totalPages = 1;
+    totalCount = 0;
+    
+    const paginationContainer = document.getElementById('rentals-pagination');
+    if (paginationContainer) {
+        paginationContainer.innerHTML = '';
+    }
+}
+
+// 生成分页HTML
+function generatePaginationHTML(pagination) {
+    const { current_page, total_pages, total_count, has_previous, has_next } = pagination;
+    
+    if (total_pages <= 1) {
+        return `<div class="pagination-info">共 ${total_count} 条记录</div>`;
+    }
+    
+    let paginationHTML = `
+        <div class="pagination-info">共 ${total_count} 条记录</div>
+        <div class="pagination-controls">
+    `;
+    
+    // 上一页按钮
+    if (has_previous) {
+        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${current_page - 1})">上一页</button>`;
+    } else {
+        paginationHTML += `<button class="pagination-btn disabled" disabled>上一页</button>`;
+    }
+    
+    // 页码按钮
+    const startPage = Math.max(1, current_page - 2);
+    const endPage = Math.min(total_pages, current_page + 2);
+    
+    if (startPage > 1) {
+        paginationHTML += `<button class="pagination-btn" onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) {
+            paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        if (i === current_page) {
+            paginationHTML += `<button class="pagination-btn active">${i}</button>`;
+        } else {
+            paginationHTML += `<button class="pagination-btn" onclick="goToPage(${i})">${i}</button>`;
+        }
+    }
+    
+    if (endPage < total_pages) {
+        if (endPage < total_pages - 1) {
+            paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+        }
+        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${total_pages})">${total_pages}</button>`;
+    }
+    
+    // 下一页按钮
+    if (has_next) {
+        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${current_page + 1})">下一页</button>`;
+    } else {
+        paginationHTML += `<button class="pagination-btn disabled" disabled>下一页</button>`;
+    }
+    
+    paginationHTML += `</div>`;
+    
+    return paginationHTML;
+}
+
+// 跳转到指定页面
+function goToPage(page) {
+    if (page < 1 || page > totalPages || page === currentPage) {
+        return;
+    }
+    
+    // 检查是否有搜索条件
+    const cameraInput = document.getElementById('rentals-camera-input');
+    const agentInput = document.getElementById('rentals-agent-input');
+    const customerInput = document.getElementById('rentals-customer-input');
+    const startDateInput = document.getElementById('rentals-start-date');
+    const endDateInput = document.getElementById('rentals-end-date');
+    
+    const hasSearch = cameraInput.value.trim() || agentInput.value.trim() || customerInput.value.trim() || startDateInput.value || endDateInput.value;
+    
+    if (hasSearch) {
+        searchRentals(page);
+    } else {
+        loadRentals(page);
+    }
+}
+
 // 将函数暴露到全局作用域
 window.showCreateRentalModal = showCreateRentalModal;
 window.deleteRental = deleteRental;
@@ -687,3 +821,4 @@ window.extendRental = extendRental;
 window.modifyRentalDates = modifyRentalDates;
 window.showEditNotesModal = showEditNotesModal;
 window.updateRentalNotes = updateRentalNotes;
+window.goToPage = goToPage;
