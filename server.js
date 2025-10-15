@@ -241,8 +241,8 @@ app.get('/cam/api/cameras/:id', async (req, res) => {
     }
 });
 
-// 更新相机信息
-app.put('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, res) => {
+// 更新相机信息（管理员可以更新所有相机，代理人只能更新自己的相机）
+app.put('/cam/api/cameras/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const { camera_code, brand, model, serial_number, agent, status, description } = req.body;
@@ -251,6 +251,13 @@ app.put('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, res
         const cameraCheck = await pool.query('SELECT * FROM cameras WHERE id = $1', [id]);
         if (cameraCheck.rows.length === 0) {
             return res.status(404).json({ error: '相机未找到' });
+        }
+        
+        const camera = cameraCheck.rows[0];
+        
+        // 权限验证：代理人只能修改自己的相机
+        if (req.user.role === 'agent' && camera.agent !== req.user.agent_name) {
+            return res.status(403).json({ error: '您只能修改自己的相机' });
         }
         
         // 检查相机编码是否重复（排除当前相机）
@@ -263,6 +270,12 @@ app.put('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, res
             return res.status(400).json({ error: '相机编码已存在' });
         }
         
+        // 代理人不能修改代理人字段
+        let finalAgent = agent;
+        if (req.user.role === 'agent') {
+            finalAgent = req.user.agent_name; // 代理人只能设置自己为代理人
+        }
+        
         // 更新相机信息
         const result = await pool.query(`
             UPDATE cameras 
@@ -270,7 +283,7 @@ app.put('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, res
                 agent = $5, status = $6, description = $7, updated_at = CURRENT_TIMESTAMP 
             WHERE id = $8 
             RETURNING *
-        `, [camera_code, brand, model, serial_number, agent, status, description, id]);
+        `, [camera_code, brand, model, serial_number, finalAgent, status, description, id]);
         
         res.json(result.rows[0]);
     } catch (err) {
@@ -920,8 +933,8 @@ app.delete('/cam/api/rentals/:id', authenticateToken, requireAdmin, async (req, 
     }
 });
 
-// 删除相机（需要管理员权限）
-app.delete('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, res) => {
+// 删除相机（管理员可以删除所有相机，代理人只能删除自己的相机）
+app.delete('/cam/api/cameras/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         
@@ -929,6 +942,13 @@ app.delete('/cam/api/cameras/:id', authenticateToken, requireAdmin, async (req, 
         const cameraCheck = await pool.query('SELECT * FROM cameras WHERE id = $1', [id]);
         if (cameraCheck.rows.length === 0) {
             return res.status(404).json({ error: '相机未找到' });
+        }
+        
+        const camera = cameraCheck.rows[0];
+        
+        // 权限验证：代理人只能删除自己的相机
+        if (req.user.role === 'agent' && camera.agent !== req.user.agent_name) {
+            return res.status(403).json({ error: '您只能删除自己的相机' });
         }
         
         // 检查相机是否有活跃的租赁记录
