@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS rentals (
     return_date DATE NOT NULL,
     actual_return_date DATE,
     status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'completed', 'cancelled', 'overdue')),
+    notes TEXT, -- 租赁备注字段
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

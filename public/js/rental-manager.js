@@ -17,17 +17,31 @@ async function loadRentals() {
     }
 }
 
+// 计算租赁天数
+function calculateRentalDays(rentalDate, returnDate) {
+    const start = new Date(rentalDate);
+    const end = new Date(returnDate);
+    const timeDiff = end.getTime() - start.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysDiff;
+}
+
 // 渲染租赁记录表格
 function renderRentalsTable(rentals) {
     const tableBody = document.getElementById('rentals-table-body');
     
     if (rentals.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="9" class="loading">没有租赁记录</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="11" class="loading">没有租赁记录</td></tr>';
         return;
     }
 
     tableBody.innerHTML = rentals.map(rental => {
         const currentStatus = calculateRentalStatus(rental);
+        const rentalDays = calculateRentalDays(rental.rental_date, rental.return_date);
+        const notesDisplay = rental.notes ? 
+            `<span title="${rental.notes}">${rental.notes.length > 20 ? rental.notes.substring(0, 20) + '...' : rental.notes}</span>` : 
+            '<span class="text-muted">无</span>';
+        
         return `
             <tr>
                 <td>${rental.camera_code}</td>
@@ -37,15 +51,18 @@ function renderRentalsTable(rentals) {
                 <td>${rental.customer_phone || '无'}</td>
                 <td>${formatDate(rental.rental_date)}</td>
                 <td>${formatDate(rental.return_date)}</td>
+                <td>${rentalDays} 天</td>
                 <td>
                     <span class="status-badge status-${currentStatus}">
                         ${getRentalStatusText(currentStatus)}
                     </span>
                 </td>
+                <td>${notesDisplay}</td>
                 <td>
                     <div class="action-buttons">
                         <button onclick="showExtendRentalModal(${rental.id})" class="btn-orange">延期</button>
                         <button onclick="showModifyDatesModal(${rental.id})" class="btn-blue">修改日期</button>
+                        <button onclick="showEditNotesModal(${rental.id})" class="btn-green">修改备注</button>
                         <button onclick="deleteRental(${rental.id})" class="btn-red">删除</button>
                     </div>
                 </td>
@@ -575,6 +592,80 @@ async function modifyRentalDates(event) {
     }
 }
 
+// 显示修改备注模态框
+async function showEditNotesModal(rentalId) {
+    try {
+        // 获取租赁记录详情
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST));
+        if (!response.ok) throw new Error('获取租赁记录失败');
+        
+        const rentals = await response.json();
+        const rental = rentals.find(r => r.id == rentalId);
+        
+        if (!rental) {
+            Message.error('租赁记录未找到');
+            return;
+        }
+        
+        // 设置模态框内容
+        document.getElementById('edit-notes-rental-info').textContent = 
+            `${rental.camera_code} - ${rental.brand} ${rental.model} (${rental.customer_name})`;
+        
+        // 设置备注内容
+        const notesTextarea = document.getElementById('edit-notes-textarea');
+        notesTextarea.value = rental.notes || '';
+        
+        // 存储当前租赁ID
+        document.getElementById('edit-notes-modal').dataset.rentalId = rentalId;
+        
+        showModal('edit-notes-modal');
+    } catch (error) {
+        Message.error('加载租赁信息失败: ' + error.message);
+    }
+}
+
+// 更新租赁备注
+async function updateRentalNotes(event) {
+    event.preventDefault();
+    
+    const rentalId = document.getElementById('edit-notes-modal').dataset.rentalId;
+    const notes = document.getElementById('edit-notes-textarea').value;
+    
+    try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            Message.error('请先登录');
+            return;
+        }
+        
+        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.UPDATE_NOTES, { id: rentalId }), {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                notes: notes
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || '更新备注失败');
+        }
+        
+        const result = await response.json();
+        closeModal('edit-notes-modal');
+        
+        // 刷新租赁记录列表
+        loadRentals();
+        
+        Message.success(result.message || '租赁备注更新成功！');
+    } catch (error) {
+        Message.error('更新租赁备注失败: ' + error.message);
+    }
+}
+
 // 将函数暴露到全局作用域
 window.showCreateRentalModal = showCreateRentalModal;
 window.deleteRental = deleteRental;
@@ -582,3 +673,5 @@ window.showExtendRentalModal = showExtendRentalModal;
 window.showModifyDatesModal = showModifyDatesModal;
 window.extendRental = extendRental;
 window.modifyRentalDates = modifyRentalDates;
+window.showEditNotesModal = showEditNotesModal;
+window.updateRentalNotes = updateRentalNotes;

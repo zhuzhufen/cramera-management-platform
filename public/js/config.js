@@ -27,6 +27,7 @@ const CONFIG = {
         CHECK_CONFLICT: '/rentals/check-conflict',
         EXTEND: '/rentals/:id/extend',
         UPDATE_DATES: '/rentals/:id/dates',
+        UPDATE_NOTES: '/rentals/:id/notes',
         DELETE: '/rentals/:id'
     },
     

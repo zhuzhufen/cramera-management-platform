@@ -682,7 +682,8 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
                 c.id as camera_id,
                 r.customer_name,
                 r.customer_phone,
-                r.status
+                r.status,
+                r.notes
             FROM rentals r
             JOIN cameras c ON r.camera_id = c.id
             WHERE 1=1
@@ -1215,6 +1216,46 @@ app.get('/cam/api/auth/encryption-key', (req, res) => {
         key: encryptionKey,
         salt: salt
     });
+});
+
+// 更新租赁备注
+app.put('/cam/api/rentals/:id/notes', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { notes } = req.body;
+        
+        // 检查租赁记录是否存在
+        const rentalCheck = await pool.query('SELECT * FROM rentals WHERE id = $1', [id]);
+        if (rentalCheck.rows.length === 0) {
+            return res.status(404).json({ error: '租赁记录未找到' });
+        }
+        
+        const rental = rentalCheck.rows[0];
+        
+        // 权限验证：代理人只能修改自己相机的租赁记录
+        if (req.user.role === 'agent') {
+            const cameraCheck = await pool.query('SELECT agent FROM cameras WHERE id = $1', [rental.camera_id]);
+            if (cameraCheck.rows.length === 0 || cameraCheck.rows[0].agent !== req.user.agent_name) {
+                return res.status(403).json({ error: '您只能修改自己相机的租赁记录' });
+            }
+        }
+        
+        // 更新租赁备注
+        const result = await pool.query(`
+            UPDATE rentals 
+            SET notes = $1, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = $2 
+            RETURNING *
+        `, [notes, id]);
+        
+        res.json({ 
+            message: '租赁备注更新成功',
+            updatedRental: result.rows[0]
+        });
+    } catch (err) {
+        console.error('更新租赁备注失败:', err);
+        res.status(500).json({ error: '更新租赁备注失败' });
+    }
 });
 
 // 修改密码
