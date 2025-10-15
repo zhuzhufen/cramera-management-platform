@@ -678,8 +678,10 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
             page_size = 10
         } = req.query;
         
-        // 计算分页偏移量
-        const offset = (parseInt(page) - 1) * parseInt(page_size);
+        // 计算分页偏移量，确保参数是有效的数字
+        const pageNum = parseInt(page) || 1;
+        const pageSizeNum = parseInt(page_size) || 10;
+        const offset = (pageNum - 1) * pageSizeNum;
         
         let query = `
             SELECT 
@@ -773,7 +775,7 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
         }
         
         query += ` ORDER BY r.rental_date DESC LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
-        params.push(parseInt(page_size), offset);
+        params.push(pageSizeNum, offset);
         
         // 执行查询
         const [result, countResult] = await Promise.all([
@@ -782,17 +784,17 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
         ]);
         
         const totalCount = parseInt(countResult.rows[0].total_count);
-        const totalPages = Math.ceil(totalCount / parseInt(page_size));
+        const totalPages = Math.ceil(totalCount / pageSizeNum);
         
         res.json({
             rentals: result.rows,
             pagination: {
-                current_page: parseInt(page),
-                page_size: parseInt(page_size),
+                current_page: pageNum,
+                page_size: pageSizeNum,
                 total_count: totalCount,
                 total_pages: totalPages,
-                has_previous: parseInt(page) > 1,
-                has_next: parseInt(page) < totalPages
+                has_previous: pageNum > 1,
+                has_next: pageNum < totalPages
             }
         });
     } catch (err) {
