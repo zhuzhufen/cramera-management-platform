@@ -60,10 +60,10 @@ function renderRentalsTable(rentals) {
                 <td>${notesDisplay}</td>
                 <td>
                     <div class="action-buttons">
-                        <button onclick="showExtendRentalModal(${rental.id})" class="btn-orange">延期</button>
-                        <button onclick="showModifyDatesModal(${rental.id})" class="btn-blue">修改日期</button>
-                        <button onclick="showEditNotesModal(${rental.id})" class="btn-green">修改备注</button>
-                        <button onclick="deleteRental(${rental.id})" class="btn-red">删除</button>
+                        <button onclick="showExtendRentalModal(${rental.id})" class="btn-orange btn-small">延期</button>
+                        <button onclick="showModifyDatesModal(${rental.id})" class="btn-blue btn-small">改期</button>
+                        <button onclick="showEditNotesModal(${rental.id})" class="btn-green btn-small">备注</button>
+                        <button onclick="deleteRental(${rental.id})" class="btn-red btn-small">删除</button>
                     </div>
                 </td>
             </tr>

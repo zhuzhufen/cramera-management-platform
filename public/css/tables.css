@@ -154,7 +154,7 @@
     background: linear-gradient(135deg, #f8fdff 0%, #f0f8ff 100%);
     box-shadow: 0 4px 20px rgba(30, 136, 229, 0.15);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .rentals-table-container::before {
@@ -580,6 +580,53 @@
     margin-top: 4px;
 }
 
+/* 租赁记录操作按钮 */
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-small {
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    min-width: 50px;
+    text-align: center;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-small:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-orange.btn-small {
+    background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+    color: white;
+}
+
+.btn-blue.btn-small {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+}
+
+.btn-green.btn-small {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-red.btn-small {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
     .rentals-table-container,
@@ -603,6 +650,21 @@
         font-size: 0.8rem;
         margin-right: 4px;
         margin-bottom: 4px;
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        padding: 6px 8px;
+    }
+    
+    .action-menu {
+        min-width: 120px;
+    }
+    
+    .action-item {
+        padding: 8px 10px;
+        font-size: 0.8rem;
     }
 }
 
