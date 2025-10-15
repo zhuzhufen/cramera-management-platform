@@ -3,28 +3,23 @@
 // 加载租赁日历
 async function loadCalendar() {
     try {
-        // 只在有筛选条件时才查询，否则显示空日历
+        const queryParams = { month: currentMonth, year: currentYear };
+        
+        // 只有当选择了具体相机时才添加相机筛选条件
         if (selectedCameraId) {
-            const queryParams = { month: currentMonth, year: currentYear };
-            if (selectedCameraId) {
-                queryParams.camera_id = selectedCameraId;
-            }
-            
-            const queryString = CONFIG.buildQueryString(queryParams);
-            const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.CALENDAR) + queryString);
-            if (!response.ok) throw new Error('加载日历数据失败');
-
-            const rentals = await response.json();
-            
-            // 保存租赁数据到全局变量，供后续使用
-            window.currentRentals = rentals;
-            
-            renderCalendar(rentals);
-        } else {
-            // 没有筛选条件时，显示空日历
-            renderCalendar([]);
-            window.currentRentals = [];
+            queryParams.camera_id = selectedCameraId;
         }
+        
+        const queryString = CONFIG.buildQueryString(queryParams);
+        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.CALENDAR) + queryString);
+        if (!response.ok) throw new Error('加载日历数据失败');
+
+        const rentals = await response.json();
+        
+        // 保存租赁数据到全局变量，供后续使用
+        window.currentRentals = rentals;
+        
+        renderCalendar(rentals);
         
         // 更新相机选择器
         updateCameraSelector();
