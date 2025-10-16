@@ -945,9 +945,9 @@ app.put('/cam/api/rentals/:id/dates', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: '新的租赁日期和归还日期不能为空' });
         }
         
-        // 检查日期有效性
-        if (new_rental_date >= new_return_date) {
-            return res.status(400).json({ error: '归还日期必须晚于租赁日期' });
+        // 检查日期有效性（允许当天用当天还）
+        if (new_rental_date > new_return_date) {
+            return res.status(400).json({ error: '归还日期不能早于租赁日期' });
         }
         
         // 检查租赁记录是否存在

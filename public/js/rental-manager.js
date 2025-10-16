@@ -578,8 +578,8 @@ async function modifyRentalDates(event) {
         return;
     }
     
-    if (newRentalDate >= newReturnDate) {
-        Message.warning('归还日期必须晚于租赁日期');
+    if (newRentalDate > newReturnDate) {
+        Message.warning('归还日期不能早于租赁日期');
         return;
     }
     
