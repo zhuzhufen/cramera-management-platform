@@ -36,8 +36,9 @@ function calculateRentalDays(rentalDate, returnDate) {
     const start = new Date(rentalDate);
     const end = new Date(returnDate);
     const timeDiff = end.getTime() - start.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))+1;
-    return daysDiff;
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    // 确保当天借当天还算1天
+    return Math.max(daysDiff, 1);
 }
 
 // 渲染租赁记录表格
