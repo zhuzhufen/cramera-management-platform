@@ -302,7 +302,7 @@ app.put('/cam/api/cameras/:id', authenticateToken, async (req, res) => {
 // 获取租赁日历数据
 app.get('/cam/api/rentals/calendar', async (req, res) => {
     try {
-        const { month, year, camera_id } = req.query;
+        const { month, year, camera_id, serial_number } = req.query;
         
         // 构建月份的开始和结束日期
         const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
@@ -316,6 +316,7 @@ app.get('/cam/api/rentals/calendar', async (req, res) => {
                 c.camera_code,
                 c.brand,
                 c.model,
+                c.serial_number,
                 c.agent,
                 c.id as camera_id,
                 r.customer_name,
@@ -336,10 +337,18 @@ app.get('/cam/api/rentals/calendar', async (req, res) => {
         `;
         
         const params = [startDate, endDate];
+        let paramCount = 2;
         
         if (camera_id) {
-            query += ` AND c.id = $3`;
+            paramCount++;
+            query += ` AND c.id = $${paramCount}`;
             params.push(camera_id);
+        }
+        
+        if (serial_number) {
+            paramCount++;
+            query += ` AND c.serial_number ILIKE $${paramCount}`;
+            params.push(`%${serial_number}%`);
         }
         
         query += ` ORDER BY r.rental_date`;

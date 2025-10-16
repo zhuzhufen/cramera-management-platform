@@ -3,11 +3,18 @@
 // 加载租赁日历
 async function loadCalendar() {
     try {
+        const serialNumberInput = document.getElementById('calendar-serial-number-input');
         const queryParams = { month: currentMonth, year: currentYear };
         
         // 只有当选择了具体相机时才添加相机筛选条件
         if (selectedCameraId) {
             queryParams.camera_id = selectedCameraId;
+        }
+        
+        // 如果输入了序列号，添加序列号筛选条件
+        const serialNumberTerm = serialNumberInput.value.trim();
+        if (serialNumberTerm) {
+            queryParams.serial_number = serialNumberTerm;
         }
         
         const queryString = CONFIG.buildQueryString(queryParams);
@@ -282,20 +289,20 @@ function renderRentalsPage(rentals, currentPage) {
     const endIndex = startIndex + pageSize;
     const pageRentals = rentals.slice(startIndex, endIndex);
     
-    return pageRentals.map(rental => {
-        const currentStatus = calculateRentalStatus(rental);
-        const statusText = getRentalStatusText(currentStatus);
-        const rentalStart = formatDate(rental.rental_date);
-        const rentalEnd = formatDate(rental.return_date);
-        
-        return `
+        return pageRentals.map(rental => {
+            const currentStatus = calculateRentalStatus(rental);
+            const statusText = getRentalStatusText(currentStatus);
+            const rentalStart = formatDate(rental.rental_date);
+            const rentalEnd = formatDate(rental.return_date);
+            
+            return `
             <div class="rental-item" data-rental-id="${rental.id}">
                 <div class="rental-header">
                     <div class="camera-info">
                         <span class="camera-icon">📷</span>
                         <div class="camera-details">
                             <div class="camera-code">${rental.camera_code}</div>
-                            <div class="camera-model">${rental.brand} ${rental.model} ${rental.serial_number ? `(${rental.serial_number})` : ''}</div>
+                            <div class="camera-model">${rental.brand} ${rental.model}${rental.serial_number ? ` (${rental.serial_number})` : ''}</div>
                         </div>
                     </div>
                     <div class="header-right">
@@ -315,7 +322,7 @@ function renderRentalsPage(rentals, currentPage) {
                 </div>
             </div>
         `;
-    }).join('');
+        }).join('');
 }
 
 // 渲染分页控件
@@ -419,6 +426,12 @@ function showRentalDetail(rentalId) {
                     <label>相机信息:</label>
                     <span>${rental.camera_code} - ${rental.brand} ${rental.model}</span>
                 </div>
+                ${rental.serial_number ? `
+                <div class="detail-row">
+                    <label>序列号:</label>
+                    <span>${rental.serial_number}</span>
+                </div>
+                ` : ''}
                 <div class="detail-row">
                     <label>代理人:</label>
                     <span>${rental.agent || '无'}</span>
@@ -490,15 +503,18 @@ function navigateMonth(direction) {
 
 // 日历筛选功能
 async function searchCalendarCameras() {
+    const serialNumberInput = document.getElementById('calendar-serial-number-input');
     const cameraSelect = document.getElementById('calendar-camera-select');
     const agentSelect = document.getElementById('calendar-agent-select');
     
+    const serialNumberTerm = serialNumberInput.value.trim();
     const cameraId = cameraSelect.value;
     const agentValue = agentSelect.value;
 
     try {
         // 构建查询参数
         const queryParams = {};
+        if (serialNumberTerm) queryParams.serial_number = serialNumberTerm;
         if (cameraId) queryParams.id = cameraId;
         if (agentValue) queryParams.agent = agentValue;
         
@@ -566,6 +582,7 @@ function updateCameraSelectorByAgent(agentValue) {
 
 // 清除日历筛选
 function clearCalendarFilters() {
+    document.getElementById('calendar-serial-number-input').value = '';
     document.getElementById('calendar-camera-select').value = '';
     document.getElementById('calendar-agent-select').value = '';
     
