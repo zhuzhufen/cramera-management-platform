@@ -257,10 +257,29 @@ async function editCamera(cameraId) {
         
         // 使用强制更新代理人选择器，避免权限问题
         forceUpdateAgentSelector();
-        const agentSelect = document.getElementById('agent-select');
-        if (camera.agent) {
-            agentSelect.value = camera.agent;
-        }
+        
+        // 等待代理人选择器更新完成后再设置值
+        setTimeout(() => {
+            const agentSelect = document.getElementById('agent-select');
+            if (camera.agent && agentSelect) {
+                console.log('设置代理人选择器值为:', camera.agent);
+                agentSelect.value = camera.agent;
+                
+                // 如果值没有设置成功，尝试添加选项
+                if (agentSelect.value !== camera.agent) {
+                    console.log('代理人选择器设置失败，尝试添加选项');
+                    const optionExists = Array.from(agentSelect.options).some(option => option.value === camera.agent);
+                    if (!optionExists) {
+                        const newOption = document.createElement('option');
+                        newOption.value = camera.agent;
+                        newOption.textContent = camera.agent;
+                        agentSelect.appendChild(newOption);
+                    }
+                    agentSelect.value = camera.agent;
+                }
+                console.log('代理人选择器最终值:', agentSelect.value);
+            }
+        }, 100);
         
         // 修改表单标题和提交行为
         document.querySelector('#add-camera-modal h3').textContent = '修改相机信息';
