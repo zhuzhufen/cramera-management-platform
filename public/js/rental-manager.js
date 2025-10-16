@@ -36,7 +36,7 @@ function calculateRentalDays(rentalDate, returnDate) {
     const start = new Date(rentalDate);
     const end = new Date(returnDate);
     const timeDiff = end.getTime() - start.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))+1;
     return daysDiff;
 }
 
