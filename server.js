@@ -707,6 +707,7 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
     try {
         const { 
             camera_code, 
+            serial_number,
             agent, 
             customer_name, 
             start_date, 
@@ -728,6 +729,7 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
                 c.camera_code,
                 c.brand,
                 c.model,
+                c.serial_number,
                 c.agent,
                 c.id as camera_id,
                 r.customer_name,
@@ -769,6 +771,16 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
             countQuery += ` AND c.camera_code ILIKE $${countParamCount}`;
             params.push(`%${camera_code}%`);
             countParams.push(`%${camera_code}%`);
+        }
+        
+        // 序列号筛选
+        if (serial_number) {
+            paramCount++;
+            countParamCount++;
+            query += ` AND c.serial_number ILIKE $${paramCount}`;
+            countQuery += ` AND c.serial_number ILIKE $${countParamCount}`;
+            params.push(`%${serial_number}%`);
+            countParams.push(`%${serial_number}%`);
         }
         
         // 代理人筛选（管理员专用）

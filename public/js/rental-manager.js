@@ -61,7 +61,7 @@ function renderRentalsTable(rentals) {
                 <td>
                     <div class="camera-info">
                         <div class="camera-code">${rental.camera_code}</div>
-                        <div class="camera-model">${rental.brand} ${rental.model}</div>
+                        <div class="camera-model">${rental.brand} ${rental.model}${rental.serial_number ? ` (${rental.serial_number})` : ''}</div>
                     </div>
                 </td>
                 <td>${rental.agent || '无'}</td>
@@ -100,6 +100,7 @@ function renderRentalsTable(rentals) {
 // 搜索租赁记录
 async function searchRentals(page = 1) {
     const cameraInput = document.getElementById('rentals-camera-input');
+    const serialNumberInput = document.getElementById('rentals-serial-number-input');
     const agentInput = document.getElementById('rentals-agent-input');
     const customerInput = document.getElementById('rentals-customer-input');
     const startDateInput = document.getElementById('rentals-start-date');
@@ -107,6 +108,7 @@ async function searchRentals(page = 1) {
     const statusSelect = document.getElementById('rentals-status-select');
     
     const cameraTerm = cameraInput.value.trim();
+    const serialNumberTerm = serialNumberInput.value.trim();
     const agentTerm = agentInput.value.trim();
     const customerTerm = customerInput.value.trim();
     const startDate = startDateInput.value;
@@ -124,6 +126,7 @@ async function searchRentals(page = 1) {
             page_size: pageSize
         };
         if (cameraTerm) queryParams.camera_code = cameraTerm;
+        if (serialNumberTerm) queryParams.serial_number = serialNumberTerm;
         if (agentTerm) queryParams.agent = agentTerm;
         if (customerTerm) queryParams.customer_name = customerTerm;
         if (startDate) queryParams.start_date = startDate;
@@ -156,6 +159,7 @@ async function searchRentals(page = 1) {
 // 清除租赁记录筛选
 function clearRentalsFilters() {
     document.getElementById('rentals-camera-input').value = '';
+    document.getElementById('rentals-serial-number-input').value = '';
     document.getElementById('rentals-agent-input').value = '';
     document.getElementById('rentals-customer-input').value = '';
     document.getElementById('rentals-start-date').value = '';
@@ -798,12 +802,13 @@ function goToPage(page) {
     
     // 检查是否有搜索条件
     const cameraInput = document.getElementById('rentals-camera-input');
+    const serialNumberInput = document.getElementById('rentals-serial-number-input');
     const agentInput = document.getElementById('rentals-agent-input');
     const customerInput = document.getElementById('rentals-customer-input');
     const startDateInput = document.getElementById('rentals-start-date');
     const endDateInput = document.getElementById('rentals-end-date');
     
-    const hasSearch = cameraInput.value.trim() || agentInput.value.trim() || customerInput.value.trim() || startDateInput.value || endDateInput.value;
+    const hasSearch = cameraInput.value.trim() || serialNumberInput.value.trim() || agentInput.value.trim() || customerInput.value.trim() || startDateInput.value || endDateInput.value;
     
     if (hasSearch) {
         searchRentals(page);
