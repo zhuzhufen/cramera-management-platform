@@ -88,7 +88,7 @@ pool.connect((err, client, release) => {
 // 获取所有相机
 app.get('/cam/api/cameras', async (req, res) => {
     try {
-        const { rental_date, return_date, agent, status, serial_number } = req.query;
+        const { rental_date, return_date, agent, status, serial_number, code } = req.query;
         
         let query = `
             SELECT c.*, 
@@ -115,6 +115,13 @@ app.get('/cam/api/cameras', async (req, res) => {
             paramCount++;
             whereConditions.push(`c.serial_number ILIKE $${paramCount}`);
             params.push(`%${serial_number}%`);
+        }
+        
+        // 如果提供了相机编码筛选
+        if (code) {
+            paramCount++;
+            whereConditions.push(`c.camera_code ILIKE $${paramCount}`);
+            params.push(`%${code}%`);
         }
         
         // 添加WHERE条件
@@ -609,7 +616,7 @@ app.get('/cam/api/auth/me', authenticateToken, (req, res) => {
 // 获取所有相机（添加权限控制）
 app.get('/cam/api/cameras', getCurrentUser, async (req, res) => {
     try {
-        const { rental_date, return_date, agent, status, serial_number } = req.query;
+        const { rental_date, return_date, agent, status, serial_number, code } = req.query;
         
         let query = `
             SELECT c.*, 
