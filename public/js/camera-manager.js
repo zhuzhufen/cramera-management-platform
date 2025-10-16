@@ -252,8 +252,8 @@ async function editCamera(cameraId) {
         document.querySelector('#add-camera-form select[name="status"]').value = camera.status;
         document.querySelector('#add-camera-form textarea[name="description"]').value = camera.description || '';
         
-        // 更新代理人选择器并设置值
-        await updateAgentSelector();
+        // 使用强制更新代理人选择器，避免权限问题
+        forceUpdateAgentSelector();
         const agentSelect = document.getElementById('agent-select');
         if (camera.agent) {
             agentSelect.value = camera.agent;

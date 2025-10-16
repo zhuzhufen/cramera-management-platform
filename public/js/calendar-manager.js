@@ -56,28 +56,35 @@ async function updateCameraSelector() {
             }
         } else {
             // 管理员模式，获取所有代理人列表
-            const response = await authFetch(CONFIG.buildUrl(CONFIG.USER.LIST));
-            if (response.ok) {
-                const users = await response.json();
-                const agents = users.filter(user => user.role === 'agent' && user.agent_name);
-                
-                const agentOptions = '<option value="">所有代理人</option>' +
-                    agents.map(agent => `
-                        <option value="${agent.agent_name}">${agent.agent_name}</option>
-                    `).join('');
-                
-                calendarAgentSelect.innerHTML = agentOptions;
-                // 恢复之前的代理人筛选值
-                calendarAgentSelect.value = currentAgentValue;
-                calendarAgentSelect.readOnly = false;
-                calendarAgentSelect.style.backgroundColor = '';
-                calendarAgentSelect.style.cursor = '';
-                
-                // 恢复代理人筛选标签
-                const agentLabel = calendarAgentSelect.previousElementSibling;
-                if (agentLabel && agentLabel.textContent === '当前代理人') {
-                    agentLabel.textContent = '代理人';
+            try {
+                const response = await authFetch(CONFIG.buildUrl(CONFIG.USER.LIST));
+                if (response.ok) {
+                    const users = await response.json();
+                    const agents = users.filter(user => user.role === 'agent' && user.agent_name);
+                    
+                    const agentOptions = '<option value="">所有代理人</option>' +
+                        agents.map(agent => `
+                            <option value="${agent.agent_name}">${agent.agent_name}</option>
+                        `).join('');
+                    
+                    calendarAgentSelect.innerHTML = agentOptions;
+                    // 恢复之前的代理人筛选值
+                    calendarAgentSelect.value = currentAgentValue;
+                    calendarAgentSelect.readOnly = false;
+                    calendarAgentSelect.style.backgroundColor = '';
+                    calendarAgentSelect.style.cursor = '';
+                    
+                    // 恢复代理人筛选标签
+                    const agentLabel = calendarAgentSelect.previousElementSibling;
+                    if (agentLabel && agentLabel.textContent === '当前代理人') {
+                        agentLabel.textContent = '代理人';
+                    }
                 }
+            } catch (userError) {
+                console.error('获取代理人列表失败:', userError);
+                // 如果获取失败，显示空选项
+                calendarAgentSelect.innerHTML = '<option value="">所有代理人</option>';
+                calendarAgentSelect.value = currentAgentValue;
             }
         }
         
@@ -102,7 +109,7 @@ async function updateCameraSelector() {
             // 恢复之前的代理人筛选值
             calendarAgentSelect.value = currentAgentValue || '';
         } else {
-            calendarAgentSelect.innerHTML = '<option value="">获取代理人失败</option>';
+            calendarAgentSelect.innerHTML = '<option value="">所有代理人</option>';
         }
         calendarCameraSelect.innerHTML = '<option value="">没有找到相机</option>';
     }
