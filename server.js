@@ -309,7 +309,7 @@ app.put('/cam/api/cameras/:id', authenticateToken, async (req, res) => {
 // 获取租赁日历数据
 app.get('/cam/api/rentals/calendar', getCurrentUser, async (req, res) => {
     try {
-        const { month, year, camera_id, serial_number } = req.query;
+        const { month, year, camera_id, serial_number, agent } = req.query;
         
         // 构建月份的开始和结束日期
         const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
@@ -351,6 +351,13 @@ app.get('/cam/api/rentals/calendar', getCurrentUser, async (req, res) => {
             paramCount++;
             query += ` AND c.agent = $${paramCount}`;
             params.push(req.user.agent_name);
+        }
+        
+        // 代理人筛选（管理员专用）
+        if (agent && req.user && req.user.role === 'admin') {
+            paramCount++;
+            query += ` AND c.agent = $${paramCount}`;
+            params.push(agent);
         }
         
         if (camera_id) {

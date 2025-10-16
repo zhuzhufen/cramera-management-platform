@@ -4,6 +4,7 @@
 async function loadCalendar() {
     try {
         const serialNumberInput = document.getElementById('calendar-serial-number-input');
+        const agentSelect = document.getElementById('calendar-agent-select');
         const queryParams = { month: currentMonth, year: currentYear };
         
         // 只有当选择了具体相机时才添加相机筛选条件
@@ -15,6 +16,12 @@ async function loadCalendar() {
         const serialNumberTerm = serialNumberInput.value.trim();
         if (serialNumberTerm) {
             queryParams.serial_number = serialNumberTerm;
+        }
+        
+        // 如果选择了代理人，添加代理人筛选条件（仅管理员可用）
+        const agentValue = agentSelect.value;
+        if (agentValue && currentUser && currentUser.role === 'admin') {
+            queryParams.agent = agentValue;
         }
         
         const queryString = CONFIG.buildQueryString(queryParams);

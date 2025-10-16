@@ -256,6 +256,8 @@ document.getElementById('add-camera-btn').addEventListener('click', function() {
     // 代理人联动相机功能
     document.getElementById('calendar-agent-select').addEventListener('change', function() {
         updateCameraSelectorByAgent(this.value);
+        // 自动触发日历筛选
+        loadCalendar();
     });
 
     // 租赁记录筛选功能
