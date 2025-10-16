@@ -101,12 +101,14 @@ function renderCameras(cameras) {
 // 搜索相机
 async function searchCameras() {
     const searchInput = document.getElementById('search-input');
+    const serialNumberInput = document.getElementById('serial-number-input');
     const agentInput = document.getElementById('agent-input');
     const statusSelect = document.getElementById('status-select');
     const rentalDateInput = document.getElementById('rental-date');
     const returnDateInput = document.getElementById('return-date');
     
     const searchTerm = searchInput.value.trim();
+    const serialNumberTerm = serialNumberInput.value.trim();
     const agentTerm = agentInput.value.trim();
     const statusValue = statusSelect.value;
     const rentalDate = rentalDateInput.value;
@@ -119,6 +121,7 @@ async function searchCameras() {
         // 构建查询参数
         const queryParams = {};
         if (searchTerm) queryParams.code = searchTerm;
+        if (serialNumberTerm) queryParams.serial_number = serialNumberTerm;
         if (statusValue) queryParams.status = statusValue;
         if (rentalDate) queryParams.rental_date = rentalDate;
         if (returnDate) queryParams.return_date = returnDate;
@@ -272,6 +275,7 @@ async function editCamera(cameraId) {
 // 清除所有筛选
 function clearAllFilters() {
     document.getElementById('search-input').value = '';
+    document.getElementById('serial-number-input').value = '';
     document.getElementById('agent-input').value = '';
     document.getElementById('status-select').value = '';
     document.getElementById('rental-date').value = '';
