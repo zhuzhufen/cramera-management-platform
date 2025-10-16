@@ -307,7 +307,7 @@ app.put('/cam/api/cameras/:id', authenticateToken, async (req, res) => {
 });
 
 // 获取租赁日历数据
-app.get('/cam/api/rentals/calendar', async (req, res) => {
+app.get('/cam/api/rentals/calendar', getCurrentUser, async (req, res) => {
     try {
         const { month, year, camera_id, serial_number } = req.query;
         
@@ -345,6 +345,13 @@ app.get('/cam/api/rentals/calendar', async (req, res) => {
         
         const params = [startDate, endDate];
         let paramCount = 2;
+        
+        // 如果是代理人，只能看到自己相机的租赁记录
+        if (req.user && req.user.role === 'agent' && req.user.agent_name) {
+            paramCount++;
+            query += ` AND c.agent = $${paramCount}`;
+            params.push(req.user.agent_name);
+        }
         
         if (camera_id) {
             paramCount++;

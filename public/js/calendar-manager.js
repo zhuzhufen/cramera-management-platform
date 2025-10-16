@@ -18,7 +18,7 @@ async function loadCalendar() {
         }
         
         const queryString = CONFIG.buildQueryString(queryParams);
-        const response = await fetch(CONFIG.buildUrl(CONFIG.RENTAL.CALENDAR) + queryString);
+        const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.CALENDAR) + queryString);
         if (!response.ok) throw new Error('加载日历数据失败');
 
         const rentals = await response.json();
