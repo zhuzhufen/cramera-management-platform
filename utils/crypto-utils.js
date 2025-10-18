@@ -45,12 +45,10 @@ class CryptoUtils {
                 
                 return decrypted.toString('utf8');
             } catch (aesError) {
-                console.warn('AES解密失败，尝试极简方案解密:', aesError);
                 // 如果AES解密失败，尝试极简方案
                 return this.decryptSimple(encryptedData);
             }
         } catch (error) {
-            console.error('解密失败:', error);
             throw new Error('密码解密失败');
         }
     }
@@ -76,7 +74,6 @@ class CryptoUtils {
             
             return password;
         } catch (error) {
-            console.error('极简解密失败:', error);
             throw new Error('极简方案解密失败');
         }
     }
@@ -102,7 +99,6 @@ class CryptoUtils {
             
             return password;
         } catch (error) {
-            console.error('降级解密失败:', error);
             throw new Error('降级方案解密失败');
         }
     }
@@ -147,51 +143,7 @@ class CryptoUtils {
         }
     }
 
-    // 生成随机密码（用于测试）
-    static generateRandomPassword(length = 12) {
-        const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-        let password = '';
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * charset.length);
-            password += charset[randomIndex];
-        }
-        return password;
-    }
 
-    // 测试加密解密功能
-    static testEncryption() {
-        const testPassword = this.generateRandomPassword();
-        console.log('原始密码:', testPassword);
-        
-        // 模拟前端加密
-        const encrypted = this.simulateFrontendEncryption(testPassword);
-        console.log('加密后:', encrypted);
-        
-        // 后端解密
-        const decrypted = this.decryptPassword(encrypted);
-        console.log('解密后:', decrypted);
-        
-        const isMatch = testPassword === decrypted;
-        console.log('测试结果:', isMatch ? '成功' : '失败');
-        
-        return isMatch;
-    }
-
-    // 模拟前端加密（用于测试）
-    static simulateFrontendEncryption(password) {
-        const encryptionKey = this.getEncryptionKey();
-        const salt = this.getEncryptionSalt();
-        const key = this.deriveKey(encryptionKey, salt);
-        const iv = crypto.randomBytes(16);
-        
-        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-        let encrypted = cipher.update(password, 'utf8');
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
-        
-        // 组合IV和加密数据
-        const combined = Buffer.concat([iv, encrypted]);
-        return combined.toString('base64');
-    }
 }
 
 module.exports = CryptoUtils;

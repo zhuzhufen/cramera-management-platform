@@ -142,16 +142,10 @@ async function searchRentals(page = 1) {
         
         // 客户端状态筛选（因为后端接口没有状态筛选）
         if (statusValue) {
-            console.log('开始状态筛选，筛选条件:', statusValue, '原始记录数:', rentals.length);
-            
             rentals = rentals.filter(rental => {
                 const currentStatus = calculateRentalStatus(rental);
-                const today = new Date();
-                console.log('租赁记录:', rental.id, '相机:', rental.camera_code, '租赁日期:', rental.rental_date, '归还日期:', rental.return_date, '今天:', today.toISOString().split('T')[0], '计算状态:', currentStatus, '匹配:', currentStatus === statusValue);
                 return currentStatus === statusValue;
             });
-            
-            console.log('筛选后记录数:', rentals.length);
             
             // 更新分页信息以反映客户端筛选后的结果
             const filteredPagination = {
@@ -165,10 +159,7 @@ async function searchRentals(page = 1) {
             // 对筛选后的结果进行分页
             const startIndex = (page - 1) * pageSize;
             const endIndex = startIndex + pageSize;
-            console.log('分页参数: page=', page, 'pageSize=', pageSize, 'startIndex=', startIndex, 'endIndex=', endIndex, '总记录数=', rentals.length);
             rentals = rentals.slice(startIndex, endIndex);
-            
-            console.log('分页后记录数:', rentals.length);
             
             renderRentalsTable(rentals);
             updatePagination(filteredPagination);
@@ -294,7 +285,6 @@ async function showCreateRentalModal(cameraId) {
                 autoclose: true,
                 todayHighlight: true
             }).on('changeDate', function(e) {
-                console.log('租赁日期变更:', e.date);
                 updateRentalButtonState();
             });
             
@@ -305,7 +295,6 @@ async function showCreateRentalModal(cameraId) {
                 autoclose: true,
                 todayHighlight: true
             }).on('changeDate', function(e) {
-                console.log('归还日期变更:', e.date);
                 updateRentalButtonState();
             });
             
@@ -823,7 +812,6 @@ function generatePaginationHTML(pagination) {
 
 // 跳转到指定页面
 function goToPage(page) {
-    console.log('goToPage called with page:', page);
     if (page < 1 || page > totalPages || page === currentPage) {
         return;
     }

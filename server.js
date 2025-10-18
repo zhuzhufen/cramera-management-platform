@@ -75,12 +75,11 @@ const pool = new Pool({
     }
 });
 
-// 测试数据库连接
+// 数据库连接
 pool.connect((err, client, release) => {
     if (err) {
         console.error('数据库连接失败:', err);
     } else {
-        console.log('数据库连接成功');
         release();
     }
 });
@@ -1426,5 +1425,4 @@ app.post('/cam/api/auth/change-password', authenticateToken, async (req, res) =>
 });
 
 app.listen(port, () => {
-    console.log(`相机租赁管理平台服务器运行在 http://localhost:${port}`);
 });

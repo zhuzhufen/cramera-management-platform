@@ -714,7 +714,6 @@
     <script src="lib/bootstrap-datepicker.min.js"></script>
     <script src="lib/bootstrap-datepicker.zh-CN.min.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/simple-crypto.js"></script>
     <script src="js/crypto-utils.js"></script>
     <script src="js/app.js"></script>
     <script src="js/rental-manager.js"></script>
@@ -757,7 +756,6 @@
                         autoclose: true,
                         todayHighlight: true
                     }).on('changeDate', function(e) {
-                        console.log('租赁日期变更:', e.date);
                         // 强制触发检查
                         setTimeout(() => {
                             if (window.selectedCameraForRental && window.updateRentalButtonState) {
@@ -773,7 +771,6 @@
                         autoclose: true,
                         todayHighlight: true
                     }).on('changeDate', function(e) {
-                        console.log('归还日期变更:', e.date);
                         // 强制触发检查
                         setTimeout(() => {
                             if (window.selectedCameraForRental && window.updateRentalButtonState) {

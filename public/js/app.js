@@ -366,30 +366,22 @@ function switchTab(tabName) {
         case 'cameras':
             if (typeof loadCameras === 'function') {
                 loadCameras();
-            } else {
-                console.warn('loadCameras函数未定义');
             }
             break;
         case 'calendar':
             if (typeof loadCalendar === 'function') {
                 loadCalendar();
-            } else {
-                console.warn('loadCalendar函数未定义');
             }
             break;
         case 'rentals':
             if (typeof loadRentals === 'function') {
                 loadRentals();
-            } else {
-                console.warn('loadRentals函数未定义');
             }
             break;
         case 'users':
             if (currentUser.role === 'admin') {
                 if (typeof loadUsers === 'function') {
                     loadUsers();
-                } else {
-                    console.warn('loadUsers函数未定义');
                 }
             } else {
                 // 代理人不能访问用户管理，自动切换到相机管理
@@ -529,14 +521,12 @@ function initializeRentalDatePickers() {
         
         // 添加新的事件监听器
         rentalDateInput.on('changeDate', function(e) {
-            console.log('租赁日期变更:', e.date);
             if (window.selectedCameraForRental) {
                 window.updateRentalButtonState();
             }
         });
         
         returnDateInput.on('changeDate', function(e) {
-            console.log('归还日期变更:', e.date);
             if (window.selectedCameraForRental) {
                 window.updateRentalButtonState();
             }

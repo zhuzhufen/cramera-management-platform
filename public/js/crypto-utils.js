@@ -94,7 +94,6 @@ class CryptoUtils {
                 iv: this.uint8ArrayToBase64(iv)
             };
         } catch (error) {
-            console.error('加密失败:', error);
             throw new Error('密码加密失败');
         }
     }
@@ -159,11 +158,9 @@ class CryptoUtils {
                 // 返回Base64编码的结果
                 return btoa(String.fromCharCode(...combined));
             } catch (cryptoError) {
-                console.warn('Web Crypto API加密失败，使用降级方案:', cryptoError);
                 return this.fallbackEncrypt(password);
             }
         } catch (error) {
-            console.error('加密失败:', error);
             // 最终尝试降级方案
             return this.fallbackEncrypt(password);
         }
@@ -204,7 +201,6 @@ class CryptoUtils {
             // 4. 添加标识前缀，让后端知道这是降级方案
             return 'fallback:' + finalEncoded;
         } catch (error) {
-            console.error('降级加密失败:', error);
             throw new Error('密码加密失败: ' + error.message);
         }
     }
@@ -232,7 +228,6 @@ class CryptoUtils {
                 privateKey: keyPair.privateKey // 保留私钥用于解密（实际应该由后端处理）
             };
         } catch (error) {
-            console.error('生成密钥对失败:', error);
             throw new Error('密钥对生成失败');
         }
     }

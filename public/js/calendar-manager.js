@@ -38,7 +38,6 @@ async function loadCalendar() {
         // 更新相机选择器
         updateCameraSelector();
     } catch (error) {
-        console.error('加载日历失败:', error);
         document.getElementById('calendar').innerHTML = `
             <div class="error">加载日历失败: ${error.message}</div>
         `;
@@ -95,7 +94,6 @@ async function updateCameraSelector() {
                     }
                 }
             } catch (userError) {
-                console.error('获取代理人列表失败:', userError);
                 // 如果获取失败，显示空选项
                 calendarAgentSelect.innerHTML = '<option value="">所有代理人</option>';
                 calendarAgentSelect.value = currentAgentValue;
@@ -116,7 +114,6 @@ async function updateCameraSelector() {
             calendarCameraSelect.innerHTML = '<option value="">没有找到相机</option>';
         }
     } catch (error) {
-        console.error('更新代理人选择器失败:', error);
         // 如果获取失败，显示所有代理人选项
         if (currentUser && currentUser.role === 'agent' && currentUser.agent_name) {
             calendarAgentSelect.innerHTML = `<option value="">所有代理人</option><option value="${currentUser.agent_name}">${currentUser.agent_name}</option>`;
@@ -542,7 +539,6 @@ async function searchCalendarCameras() {
         // 重新加载日历
         loadCalendar();
     } catch (error) {
-        console.error('搜索相机失败:', error);
         Message.error('搜索失败: ' + error.message);
     }
 }
