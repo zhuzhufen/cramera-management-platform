@@ -2,7 +2,7 @@
 
 // 分页状态
 let currentPage = 1;
-let pageSize = 10;
+let pageSize = 20; // 默认每页20条记录
 let totalPages = 1;
 let totalCount = 0;
 
@@ -738,53 +738,66 @@ function resetPagination() {
 function generatePaginationHTML(pagination) {
     const { current_page, total_pages, total_count, has_previous, has_next } = pagination;
     
-    if (total_pages <= 1) {
-        return `<div class="pagination-info">共 ${total_count} 条记录</div>`;
-    }
-    
     let paginationHTML = `
-        <div class="pagination-info">共 ${total_count} 条记录</div>
-        <div class="pagination-controls">
+        <div class="pagination-container">
+            <div class="pagination-left">
+                <span class="total-count">共 ${total_count} 条记录</span>
+                <div class="page-size-selector">
+                    <label>每页显示:</label>
+                    <select id="page-size-select" onchange="changePageSize(this.value)">
+                        <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
+                        <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
+                        <option value="50" ${pageSize === 50 ? 'selected' : ''}>50</option>
+                        <option value="100" ${pageSize === 100 ? 'selected' : ''}>100</option>
+                    </select>
+                </div>
+            </div>
     `;
     
-    // 上一页按钮
-    if (has_previous) {
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${current_page - 1})">上一页</button>`;
-    } else {
-        paginationHTML += `<button class="pagination-btn disabled" disabled>上一页</button>`;
-    }
-    
-    // 页码按钮
-    const startPage = Math.max(1, current_page - 2);
-    const endPage = Math.min(total_pages, current_page + 2);
-    
-    if (startPage > 1) {
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(1)">1</button>`;
-        if (startPage > 2) {
-            paginationHTML += `<span class="pagination-ellipsis">...</span>`;
-        }
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-        if (i === current_page) {
-            paginationHTML += `<button class="pagination-btn active">${i}</button>`;
+    if (total_pages > 1) {
+        paginationHTML += `<div class="pagination-right">`;
+        
+        // 上一页按钮
+        if (has_previous) {
+            paginationHTML += `<button class="pagination-btn" onclick="goToPage(${current_page - 1})">上一页</button>`;
         } else {
-            paginationHTML += `<button class="pagination-btn" onclick="goToPage(${i})">${i}</button>`;
+            paginationHTML += `<button class="pagination-btn disabled" disabled>上一页</button>`;
         }
-    }
-    
-    if (endPage < total_pages) {
-        if (endPage < total_pages - 1) {
-            paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+        
+        // 页码按钮
+        const startPage = Math.max(1, current_page - 2);
+        const endPage = Math.min(total_pages, current_page + 2);
+        
+        if (startPage > 1) {
+            paginationHTML += `<button class="pagination-btn" onclick="goToPage(1)">1</button>`;
+            if (startPage > 2) {
+                paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+            }
         }
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${total_pages})">${total_pages}</button>`;
-    }
-    
-    // 下一页按钮
-    if (has_next) {
-        paginationHTML += `<button class="pagination-btn" onclick="goToPage(${current_page + 1})">下一页</button>`;
-    } else {
-        paginationHTML += `<button class="pagination-btn disabled" disabled>下一页</button>`;
+        
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === current_page) {
+                paginationHTML += `<button class="pagination-btn active">${i}</button>`;
+            } else {
+                paginationHTML += `<button class="pagination-btn" onclick="goToPage(${i})">${i}</button>`;
+            }
+        }
+        
+        if (endPage < total_pages) {
+            if (endPage < total_pages - 1) {
+                paginationHTML += `<span class="pagination-ellipsis">...</span>`;
+            }
+            paginationHTML += `<button class="pagination-btn" onclick="goToPage(${total_pages})">${total_pages}</button>`;
+        }
+        
+        // 下一页按钮
+        if (has_next) {
+            paginationHTML += `<button class="pagination-btn" onclick="goToPage(${current_page + 1})">下一页</button>`;
+        } else {
+            paginationHTML += `<button class="pagination-btn disabled" disabled>下一页</button>`;
+        }
+        
+        paginationHTML += `</div>`;
     }
     
     paginationHTML += `</div>`;
@@ -816,6 +829,29 @@ function goToPage(page) {
     }
 }
 
+// 修改页面大小
+function changePageSize(newSize) {
+    pageSize = parseInt(newSize);
+    currentPage = 1; // 重置到第一页
+    
+    // 检查是否有搜索条件
+    const cameraInput = document.getElementById('rentals-camera-input');
+    const serialNumberInput = document.getElementById('rentals-serial-number-input');
+    const agentInput = document.getElementById('rentals-agent-input');
+    const customerInput = document.getElementById('rentals-customer-input');
+    const startDateInput = document.getElementById('rentals-start-date');
+    const endDateInput = document.getElementById('rentals-end-date');
+    const statusSelect = document.getElementById('rentals-status-select');
+    
+    const hasSearch = cameraInput.value.trim() || serialNumberInput.value.trim() || agentInput.value.trim() || customerInput.value.trim() || startDateInput.value || endDateInput.value || statusSelect.value;
+    
+    if (hasSearch) {
+        searchRentals(1);
+    } else {
+        loadRentals(1);
+    }
+}
+
 // 将函数暴露到全局作用域
 window.showCreateRentalModal = showCreateRentalModal;
 window.deleteRental = deleteRental;
@@ -826,3 +862,4 @@ window.modifyRentalDates = modifyRentalDates;
 window.showEditNotesModal = showEditNotesModal;
 window.updateRentalNotes = updateRentalNotes;
 window.goToPage = goToPage;
+window.changePageSize = changePageSize;
