@@ -718,6 +718,7 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
             customer_name, 
             start_date, 
             end_date,
+            status,
             page = 1,
             page_size = 10
         } = req.query;
@@ -838,15 +839,185 @@ app.get('/cam/api/rentals', getCurrentUser, async (req, res) => {
             pool.query(countQuery, countParams)
         ]);
         
-        const totalCount = parseInt(countResult.rows[0].total_count);
-        const totalPages = Math.ceil(totalCount / pageSizeNum);
+        // 计算动态状态
+        const rentalsWithDynamicStatus = result.rows.map(rental => {
+            const today = new Date();
+            const rentalDate = new Date(rental.rental_date);
+            const returnDate = new Date(rental.return_date);
+            
+            let dynamicStatus = rental.status;
+            
+            // 如果租赁已经取消或完成，保持原状态
+            if (rental.status === 'cancelled' || rental.status === 'completed') {
+                dynamicStatus = rental.status;
+            }
+            // 如果今天在租赁日期之前
+            else if (today < rentalDate) {
+                dynamicStatus = 'upcoming'; // 即将开始
+            }
+            // 如果今天在租赁期间内
+            else if (today >= rentalDate && today <= returnDate) {
+                dynamicStatus = 'active'; // 租赁中
+            }
+            // 如果今天超过归还日期，默认视为已结束（归还）
+            else if (today > returnDate) {
+                dynamicStatus = 'completed'; // 已结束
+            }
+            
+            return {
+                ...rental,
+                dynamic_status: dynamicStatus
+            };
+        });
+        
+        // 应用状态筛选（如果有）
+        let filteredRentals = rentalsWithDynamicStatus;
+        let filteredTotalCount = parseInt(countResult.rows[0].total_count);
+        
+        if (status) {
+            // 重新计算筛选后的总数 - 使用与前端相同的逻辑
+            const filteredCountQuery = countQuery + (status ? ` AND (CASE 
+                WHEN r.status IN ('cancelled', 'completed') THEN r.status
+                WHEN CURRENT_DATE < r.rental_date THEN 'upcoming'
+                WHEN CURRENT_DATE >= r.rental_date AND CURRENT_DATE <= r.return_date THEN 'active'
+                WHEN CURRENT_DATE > r.return_date THEN 'completed'
+                ELSE r.status
+            END) = $${countParams.length + 1}` : '');
+            
+            const filteredCountParams = [...countParams];
+            if (status) {
+                filteredCountParams.push(status);
+            }
+            
+            const filteredCountResult = await pool.query(filteredCountQuery, filteredCountParams);
+            filteredTotalCount = parseInt(filteredCountResult.rows[0].total_count);
+            
+            // 重新构建查询语句，确保参数正确
+            let filteredQuery = `
+                SELECT 
+                    r.id,
+                    r.rental_date,
+                    r.return_date,
+                    c.camera_code,
+                    c.brand,
+                    c.model,
+                    c.serial_number,
+                    c.agent,
+                    c.id as camera_id,
+                    r.customer_name,
+                    r.customer_phone,
+                    r.status,
+                    r.notes
+                FROM rentals r
+                JOIN cameras c ON r.camera_id = c.id
+                WHERE 1=1
+            `;
+            
+            const filteredParams = [];
+            let filteredParamCount = 0;
+            
+            // 重新添加所有筛选条件
+            if (req.user && req.user.role === 'agent' && req.user.agent_name) {
+                filteredParamCount++;
+                filteredQuery += ` AND c.agent = $${filteredParamCount}`;
+                filteredParams.push(req.user.agent_name);
+            }
+            
+            if (camera_code) {
+                filteredParamCount++;
+                filteredQuery += ` AND c.camera_code ILIKE $${filteredParamCount}`;
+                filteredParams.push(`%${camera_code}%`);
+            }
+            
+            if (serial_number) {
+                filteredParamCount++;
+                filteredQuery += ` AND c.serial_number ILIKE $${filteredParamCount}`;
+                filteredParams.push(`%${serial_number}%`);
+            }
+            
+            if (agent && req.user && req.user.role === 'admin') {
+                filteredParamCount++;
+                filteredQuery += ` AND c.agent ILIKE $${filteredParamCount}`;
+                filteredParams.push(`%${agent}%`);
+            }
+            
+            if (customer_name) {
+                filteredParamCount++;
+                filteredQuery += ` AND r.customer_name ILIKE $${filteredParamCount}`;
+                filteredParams.push(`%${customer_name}%`);
+            }
+            
+            if (start_date) {
+                filteredParamCount++;
+                filteredQuery += ` AND r.rental_date >= $${filteredParamCount}`;
+                filteredParams.push(start_date);
+            }
+            
+            if (end_date) {
+                filteredParamCount++;
+                filteredQuery += ` AND r.return_date <= $${filteredParamCount}`;
+                filteredParams.push(end_date);
+            }
+            
+            // 添加状态筛选条件
+            if (status) {
+                filteredParamCount++;
+                filteredQuery += ` AND (CASE 
+                    WHEN r.status IN ('cancelled', 'completed') THEN r.status
+                    WHEN CURRENT_DATE < r.rental_date THEN 'upcoming'
+                    WHEN CURRENT_DATE >= r.rental_date AND CURRENT_DATE <= r.return_date THEN 'active'
+                    WHEN CURRENT_DATE > r.return_date THEN 'completed'
+                    ELSE r.status
+                END) = $${filteredParamCount}`;
+                filteredParams.push(status);
+            }
+            
+            filteredQuery += ` ORDER BY r.rental_date DESC LIMIT $${filteredParamCount + 1} OFFSET $${filteredParamCount + 2}`;
+            filteredParams.push(pageSizeNum, offset);
+            
+            // 重新执行查询获取筛选后的数据
+            const filteredResult = await pool.query(filteredQuery, filteredParams);
+            
+            // 重新计算动态状态
+            filteredRentals = filteredResult.rows.map(rental => {
+                const today = new Date();
+                const rentalDate = new Date(rental.rental_date);
+                const returnDate = new Date(rental.return_date);
+                
+                let dynamicStatus = rental.status;
+                
+                // 如果租赁已经取消或完成，保持原状态
+                if (rental.status === 'cancelled' || rental.status === 'completed') {
+                    dynamicStatus = rental.status;
+                }
+                // 如果今天在租赁日期之前
+                else if (today < rentalDate) {
+                    dynamicStatus = 'upcoming'; // 即将开始
+                }
+                // 如果今天在租赁期间内
+                else if (today >= rentalDate && today <= returnDate) {
+                    dynamicStatus = 'active'; // 租赁中
+                }
+                // 如果今天超过归还日期，默认视为已结束（归还）
+                else if (today > returnDate) {
+                    dynamicStatus = 'completed'; // 已结束
+                }
+                
+                return {
+                    ...rental,
+                    dynamic_status: dynamicStatus
+                };
+            });
+        }
+        
+        const totalPages = Math.ceil(filteredTotalCount / pageSizeNum);
         
         res.json({
-            rentals: result.rows,
+            rentals: filteredRentals,
             pagination: {
                 current_page: pageNum,
                 page_size: pageSizeNum,
-                total_count: totalCount,
+                total_count: filteredTotalCount,
                 total_pages: totalPages,
                 has_previous: pageNum > 1,
                 has_next: pageNum < totalPages

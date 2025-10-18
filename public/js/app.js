@@ -483,12 +483,12 @@ function calculateRentalStatus(rental) {
     
     // 如果今天在租赁期间内
     if (today >= rentalDate && today <= returnDate) {
-        return 'active'; // 进行中
+        return 'active'; // 租赁中
     }
     
-    // 如果今天超过归还日期，改为已结束
+    // 如果今天超过归还日期，默认视为已结束（归还）
     if (today > returnDate) {
-        return 'completed'; // 已结束（原逾期）
+        return 'completed'; // 已结束
     }
     
     return rental.status || 'unknown';

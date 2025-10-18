@@ -51,7 +51,8 @@ function renderRentalsTable(rentals) {
     }
 
     tableBody.innerHTML = rentals.map(rental => {
-        const currentStatus = calculateRentalStatus(rental);
+        // 使用后端计算的动态状态
+        const currentStatus = rental.dynamic_status || calculateRentalStatus(rental);
         const rentalDays = calculateRentalDays(rental.rental_date, rental.return_date);
         const notesDisplay = rental.notes ? 
             `<span title="${rental.notes}">${rental.notes.length > 20 ? rental.notes.substring(0, 20) + '...' : rental.notes}</span>` : 
@@ -121,7 +122,7 @@ async function searchRentals(page = 1) {
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = '<tr><td colspan="9" class="loading">搜索中</td></tr>';
 
-        // 构建查询参数
+        // 构建查询参数 - 使用后端状态筛选
         const queryParams = {
             page: currentPage,
             page_size: pageSize
@@ -132,41 +133,22 @@ async function searchRentals(page = 1) {
         if (customerTerm) queryParams.customer_name = customerTerm;
         if (startDate) queryParams.start_date = startDate;
         if (endDate) queryParams.end_date = endDate;
+        if (statusValue) queryParams.status = statusValue; // 后端状态筛选
         
         const queryString = CONFIG.buildQueryString(queryParams);
         const response = await authFetch(CONFIG.buildUrl(CONFIG.RENTAL.LIST) + queryString);
         if (!response.ok) throw new Error('搜索失败');
 
         const data = await response.json();
-        let rentals = data.rentals;
         
-        // 客户端状态筛选（因为后端接口没有状态筛选）
-        if (statusValue) {
-            rentals = rentals.filter(rental => {
-                const currentStatus = calculateRentalStatus(rental);
-                return currentStatus === statusValue;
-            });
-            
-            // 更新分页信息以反映客户端筛选后的结果
-            const filteredPagination = {
-                current_page: page,
-                total_pages: Math.ceil(rentals.length / pageSize),
-                total_count: rentals.length,
-                has_previous: page > 1,
-                has_next: page < Math.ceil(rentals.length / pageSize)
-            };
-            
-            // 对筛选后的结果进行分页
-            const startIndex = (page - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            rentals = rentals.slice(startIndex, endIndex);
-            
-            renderRentalsTable(rentals);
-            updatePagination(filteredPagination);
-        } else {
-            renderRentalsTable(rentals);
-            updatePagination(data.pagination);
-        }
+        // 使用后端返回的动态状态
+        const rentals = data.rentals.map(rental => ({
+            ...rental,
+            dynamic_status: rental.dynamic_status // 使用后端计算的动态状态
+        }));
+        
+        renderRentalsTable(rentals);
+        updatePagination(data.pagination);
     } catch (error) {
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = `<tr><td colspan="9" class="error">搜索失败: ${error.message}</td></tr>`;
