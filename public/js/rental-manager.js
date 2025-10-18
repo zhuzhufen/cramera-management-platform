@@ -142,14 +142,40 @@ async function searchRentals(page = 1) {
         
         // 客户端状态筛选（因为后端接口没有状态筛选）
         if (statusValue) {
+            console.log('开始状态筛选，筛选条件:', statusValue, '原始记录数:', rentals.length);
+            
             rentals = rentals.filter(rental => {
                 const currentStatus = calculateRentalStatus(rental);
+                const today = new Date();
+                console.log('租赁记录:', rental.id, '相机:', rental.camera_code, '租赁日期:', rental.rental_date, '归还日期:', rental.return_date, '今天:', today.toISOString().split('T')[0], '计算状态:', currentStatus, '匹配:', currentStatus === statusValue);
                 return currentStatus === statusValue;
             });
+            
+            console.log('筛选后记录数:', rentals.length);
+            
+            // 更新分页信息以反映客户端筛选后的结果
+            const filteredPagination = {
+                current_page: page,
+                total_pages: Math.ceil(rentals.length / pageSize),
+                total_count: rentals.length,
+                has_previous: page > 1,
+                has_next: page < Math.ceil(rentals.length / pageSize)
+            };
+            
+            // 对筛选后的结果进行分页
+            const startIndex = (page - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            console.log('分页参数: page=', page, 'pageSize=', pageSize, 'startIndex=', startIndex, 'endIndex=', endIndex, '总记录数=', rentals.length);
+            rentals = rentals.slice(startIndex, endIndex);
+            
+            console.log('分页后记录数:', rentals.length);
+            
+            renderRentalsTable(rentals);
+            updatePagination(filteredPagination);
+        } else {
+            renderRentalsTable(rentals);
+            updatePagination(data.pagination);
         }
-
-        renderRentalsTable(rentals);
-        updatePagination(data.pagination);
     } catch (error) {
         const tableBody = document.getElementById('rentals-table-body');
         tableBody.innerHTML = `<tr><td colspan="9" class="error">搜索失败: ${error.message}</td></tr>`;
@@ -797,6 +823,7 @@ function generatePaginationHTML(pagination) {
 
 // 跳转到指定页面
 function goToPage(page) {
+    console.log('goToPage called with page:', page);
     if (page < 1 || page > totalPages || page === currentPage) {
         return;
     }
@@ -808,8 +835,9 @@ function goToPage(page) {
     const customerInput = document.getElementById('rentals-customer-input');
     const startDateInput = document.getElementById('rentals-start-date');
     const endDateInput = document.getElementById('rentals-end-date');
+    const statusSelect = document.getElementById('rentals-status-select');
     
-    const hasSearch = cameraInput.value.trim() || serialNumberInput.value.trim() || agentInput.value.trim() || customerInput.value.trim() || startDateInput.value || endDateInput.value;
+    const hasSearch = cameraInput.value.trim() || serialNumberInput.value.trim() || agentInput.value.trim() || customerInput.value.trim() || startDateInput.value || endDateInput.value || statusSelect.value;
     
     if (hasSearch) {
         searchRentals(page);

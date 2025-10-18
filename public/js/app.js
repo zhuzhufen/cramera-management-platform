@@ -261,7 +261,9 @@ document.getElementById('add-camera-btn').addEventListener('click', function() {
     });
 
     // 租赁记录筛选功能
-    document.getElementById('rentals-search-btn').addEventListener('click', searchRentals);
+    document.getElementById('rentals-search-btn').addEventListener('click', function() {
+        searchRentals(1);
+    });
     document.getElementById('rentals-clear-filter-btn').addEventListener('click', clearRentalsFilters);
     document.getElementById('rentals-toggle-filters-btn').addEventListener('click', toggleRentalsFilters);
 
