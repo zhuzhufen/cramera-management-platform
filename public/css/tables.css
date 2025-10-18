@@ -630,6 +630,13 @@
     font-size: 0.8rem;
 }
 
+.camera-agent {
+    color: #888;
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-top: 2px;
+}
+
 /* 租赁信息合并显示 */
 .customer-info {
     display: flex;
@@ -649,6 +656,13 @@
 }
 
 /* 各列宽度调整 */
+.index-column {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    text-align: center;
+}
+
 .days-column {
     width: 80px;
     min-width: 80px;

@@ -50,7 +50,7 @@ function renderRentalsTable(rentals) {
         return;
     }
 
-    tableBody.innerHTML = rentals.map(rental => {
+    tableBody.innerHTML = rentals.map((rental, index) => {
         // 使用后端计算的动态状态
         const currentStatus = rental.dynamic_status || calculateRentalStatus(rental);
         const rentalDays = calculateRentalDays(rental.rental_date, rental.return_date);
@@ -58,15 +58,19 @@ function renderRentalsTable(rentals) {
             `<span title="${rental.notes}">${rental.notes.length > 20 ? rental.notes.substring(0, 20) + '...' : rental.notes}</span>` : 
             '<span class="text-muted">无</span>';
         
+        // 计算当前页的序号
+        const rowNumber = (currentPage - 1) * pageSize + index + 1;
+        
         return `
             <tr>
+                <td class="index-column">${rowNumber}</td>
                 <td>
                     <div class="camera-info">
                         <div class="camera-code">${rental.camera_code}</div>
                         <div class="camera-model">${rental.brand} ${rental.model}${rental.serial_number ? ` (${rental.serial_number})` : ''}</div>
+                        <div class="camera-agent">代理人：${rental.agent || '无'}</div>
                     </div>
                 </td>
-                <td>${rental.agent || '无'}</td>
                 <td>
                     <div class="customer-info">
                         <div class="customer-name">${rental.customer_name}</div>
